@@ -21,7 +21,6 @@ class Tree extends React.Component {
 	const svg = d3.select(this.refs.tree).append('svg')
 		  .attr('width', width)
 		  .attr('height', height);
-	svg.append('g').attr('class', 'd3-points');
 	var link = svg.append("g")
 		.attr("class", "links")
 		.selectAll("line")
@@ -31,19 +30,23 @@ class Tree extends React.Component {
 		.attr("stroke", "black");
         var node = svg.append("g")
 		.attr("class", "nodes")
-		.selectAll("circle")
+		.selectAll(".node")
 		.data(data.nodes)
-		.enter().append("circle")
-		.attr("r", 10);
+		.enter().append("g")
+		.attr("class", "node");
+	var circle = node.append("circle")
+		.attr("r", 10)
+		.attr("style", "fill: white; stroke: black");
+	var text = node.append("text")
+		.text("test");
 	var ticked = function() {
-            link
-                .attr("x1", (d) => d.source.x)
+            link.attr("x1", (d) => d.source.x)
                 .attr("y1", (d) => d.source.y)
                 .attr("x2", (d) => d.target.x)
                 .attr("y2", (d) => d.target.y);
-	    
-            node
-                .attr("cx", (d) => d.x)
+	    text.attr("x", (d) => d.x)
+		.attr("y", (d) => d.y);
+            circle.attr("cx", (d) => d.x)
                 .attr("cy", (d) => d.y);
         };
 	const simulation = d3.forceSimulation()
