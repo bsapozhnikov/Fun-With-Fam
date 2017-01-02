@@ -5,19 +5,9 @@ class Tree extends React.Component {
     constructor(props) {
 	super(props);
     }
-    tick() {
-	const vis = d3.select(this.refs.tree).selectAll('.d3-points');
-	vis.selectAll('.link').attr("x1", function(d) { return d.source.x; })
-	    .attr("y1", function(d) { return d.source.y; })
-	    .attr("x2", function(d) { return d.target.x; })
-	    .attr("y2", function(d) { return d.target.y; });
-	vis.selectAll('.node').attr("cx", function(d) { return d.x; })
-	    .attr("cy", function(d) { return d.y; });
-    }
-    componentDidMount() {
+    d3setup(data){
 	const width = 300;
 	const height = 300;
-	const data = {nodes: [{id: 0},{id: 1}], links: [{source: 0, target: 1}]};
 	const svg = d3.select(this.refs.tree).append('svg')
 		  .attr('width', width)
 		  .attr('height', height);
@@ -55,7 +45,17 @@ class Tree extends React.Component {
 		  .force("center", d3.forceCenter(width / 2, height / 2))
 		  .nodes(data.nodes)
 		  .on('tick', ticked);
-	simulation.force('link').links(data.links);
+	simulation.force('link').links(data.links);		
+    } 
+    componentDidMount() {
+	d3.request("http://localhost:3000/")
+	.header("X-Requested-With", "XMLHttpRequest")
+	.header("Content-Type", "application/json")
+	.get("", (error, rsp) => {
+	    if (error) throw error;
+	    this.d3setup(JSON.parse(rsp.response));
+ 	    console.log(JSON.parse(rsp.response));
+	});
 	
     }
     render() {
