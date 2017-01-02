@@ -54,7 +54,6 @@ class Tree extends React.Component {
 	.get("", (error, rsp) => {
 	    if (error) throw error;
 	    this.d3setup(JSON.parse(rsp.response));
- 	    console.log(JSON.parse(rsp.response));
 	});
 	
     }

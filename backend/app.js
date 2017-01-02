@@ -1,4 +1,10 @@
+"use strict"
+
 var express = require('express');
+var http = require('http');
+var https = require('https');
+var firebase = require('firebase');
+
 var app = express();
 
 app.all('/', (req, res, next) => {
@@ -9,10 +15,23 @@ app.all('/', (req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    res.header('Content-Type', 'application/json');
-    res.json({nodes: [{id: 0},{id: 1}], links: [{source: 0, target: 1}]});
+    var database = firebase.database();
+    database.ref('/tree').once('value').then(function(snapshot) {
+	res.header('Content-Type', 'application/json');
+	res.json(snapshot.val());
+    }).catch(function(e) {
+	console.log(e);
+    });
 });
 
 app.listen(3000, () => {
-    console.log('Listening!');   
+    console.log('Listening!');
+    // Initialize Firebase
+    var config = {
+	apiKey: "AIzaSyDI0GmTHTm6F0SMgzzMR2RhVcLw_f5IxNg",
+	authDomain: "fun-with-fam.firebaseapp.com",
+	databaseURL: "https://fun-with-fam.firebaseio.com",
+	storageBucket: "fun-with-fam.appspot.com",
+    };
+    firebase.initializeApp(config);
 });
