@@ -2,10 +2,14 @@ import React from 'react';
 
 class AddPersonControl extends React.Component {
     constructor(props) {
-	super(props);	
+	super(props);
+	this.handleSubmit = () => { this._handleSubmit(); };
     }
-    handleSubmit() {
-	console.log("adding person");
+    _handleSubmit() {
+	const person = {
+	    name: this.refs.name.value
+	}
+	this.props.handleSubmit(person);
     }
     render() {
 	return (<div>
