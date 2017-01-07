@@ -14,14 +14,15 @@ class Tree extends React.Component {
 		  .attr('width', this.width)
 		  .attr('height', this.height);
 	this.simulation = d3.forceSimulation()
-	.force("link", d3.forceLink().id((d) => d.index))
-	.force("charge", d3.forceManyBody().strength(-200))
-	.force("center", d3.forceCenter(this.width / 2, this.height / 2))
-
+	.force('link', d3.forceLink().id((d) => d.index))
+	.force('charge', d3.forceManyBody().strength(-200))
+	//.force('X', d3.forceX().x(this.width / 2))
+	.force('Y', d3.forceY().y(this.height));
+	
 	this.links = this.svg.append("g")
-	.attr("class", "links");	
+	.attr('class', "links");	
 	this.nodes = this.svg.append("g")
-	.attr("class", "nodes")
+	.attr('class', "nodes")
 	
 	if (this.props.data) {
 	    this.d3update()
@@ -29,20 +30,28 @@ class Tree extends React.Component {
     }
     _d3update() {
 	if (this.props.data) {
+	    this.props.data.nodes.forEach((n) => {
+		if (n.root) {
+		    n.fx = this.width / 2;
+		    n.fy = 30;
+		}
+	    });
 	    var link = this.links.selectAll("line")
 	    .data(this.props.data.links)
 	    .enter()
 	    .append("line")
-	    .attr("stroke", "black");
+	    .attr('stroke', "black");
             var node = this.nodes.selectAll(".node")
 	    .data(this.props.data.nodes)
 	    .enter().append("g")
-	    .attr("class", "node");
+	    .attr('class', "node");
 	    var circle = node.append("circle")
-	    .attr("r", 10)
-	    .attr("style", "fill: white; stroke: black");
+	    .attr('r', 10)
+	    .attr('style', "fill: white; stroke: black");
 	    var text = node.append("text")
-	    .text("test");
+	    .attr('text-anchor', "middle")
+	    .attr('alignment-baseline', "middle")
+	    .text((d) => d.name || "N/A");
 	    var ticked = function() {
 		link.attr("x1", (d) => d.source.x)
                 .attr("y1", (d) => d.source.y)
