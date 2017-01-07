@@ -1,14 +1,17 @@
 import React from 'react';
 import Tree from './Tree';
+import NodeDisplay from './NodeDisplay';
 import AddPersonControl from './AddPersonControl';
 import * as d3 from 'd3';
 
 class App extends React.Component {
     constructor(props) {
 	super(props);
+	this.handleNodeClick = (node) => { this._handleNodeClick(node); };
 	this.handleNewPersonSubmit = (person) => { this._handleNewPersonSubmit(person); };
 	this.state = {
-	    tree: null
+	    tree: null,
+	    displayNode: null
 	};
     }
     componentDidMount() {
@@ -19,6 +22,9 @@ class App extends React.Component {
 	    if (error) throw error;
 	    this.setState({tree: JSON.parse(rsp.response)});
 	});		
+    }
+    _handleNodeClick(node) {
+	this.setState({displayNode: node});
     }
     _handleNewPersonSubmit(person) {
 	person.id = 2;
@@ -31,7 +37,8 @@ class App extends React.Component {
     }
     render() {
 	return (<div>
-	    <Tree data={this.state.tree}/>
+	    <Tree data={this.state.tree} handleNodeClick={this.handleNodeClick} />
+	    <NodeDisplay node={this.state.displayNode} />
 	    <AddPersonControl handleSubmit={this.handleNewPersonSubmit} />
 	    </div>);
     }

@@ -44,7 +44,8 @@ class Tree extends React.Component {
             var node = this.nodes.selectAll(".node")
 	    .data(this.props.data.nodes)
 	    .enter().append("g")
-	    .attr('class', "node");
+	    .attr('class', "node")
+	    .on('click', (d) => this.props.handleNodeClick(d));
 	    var circle = node.append("circle")
 	    .attr('r', 10)
 	    .attr('style', "fill: white; stroke: black");
