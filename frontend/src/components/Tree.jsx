@@ -15,7 +15,6 @@ class Tree extends React.Component {
 		  .attr('height', this.height);
 	this.simulation = d3.forceSimulation()
 	.velocityDecay(0)
-	.force('link', d3.forceLink().id((d) => d.index).strength(0.5))
 	.force('collide', d3.forceCollide(10))
 	.force('charge', d3.forceManyBody().strength(0))
 	//.force('X', d3.forceX().x(this.width / 2))
@@ -38,20 +37,27 @@ class Tree extends React.Component {
 		    n.fy = 30;
 		}
 	    });
+	    
 	    var link = this.links.selectAll("line")
-	    .data(this.props.data.links)
-	    .enter()
+	    .data(this.props.data.links);
+	    var linkEnter = link.enter()
 	    .append("line")
 	    .attr('stroke', "black");
-            var node = this.nodes.selectAll(".node")
-	    .data(this.props.data.nodes)
-	    .enter().append("g")
+	    link = linkEnter.merge(link);
+            
+	    var node = this.nodes.selectAll(".node")
+	    .data(this.props.data.nodes);
+	    console.log(node);
+	    node.exit().remove();
+	    var nodeEnter = node.enter().append("g")
 	    .attr('class', "node")
 	    .on('click', (d) => this.props.handleNodeClick(d));
-	    var circle = node.append("circle")
+	    node = nodeEnter.merge(node);
+	    console.log(nodeEnter);
+	    nodeEnter.append("circle")
 	    .attr('r', 10)
 	    .attr('style', "fill: white; stroke: black");
-	    var text = node.append("text")
+	    nodeEnter.append("text")
 	    .attr('text-anchor', "middle")
 	    .attr('alignment-baseline', "middle")
 	    .text((d) => d.name || "N/A");
@@ -60,15 +66,18 @@ class Tree extends React.Component {
                 .attr("y1", (d) => d.source.y)
                 .attr("x2", (d) => d.target.x)
                 .attr("y2", (d) => d.target.y);
-		text.attr("x", (d) => d.x)
+		node.select('text').attr("x", (d) => d.x)
 		.attr("y", (d) => d.y);
-		circle.attr("cx", (d) => d.x)
+		node.select('circle').attr("cx", (d) => d.x)
                 .attr("cy", (d) => d.y);
             };
 	    this.simulation
 	    .nodes(this.props.data.nodes)
 	    .on('tick', ticked);
-	    this.simulation.force('link').links(this.props.data.links);
+	    this.simulation
+	    .force('link', d3.forceLink(this.props.data.links).id((d) => d.index).strength(0.5));
+	    this.simulation.alphaTarget(0.5).restart();
+
 	}
     }
     componentDidMount() {
