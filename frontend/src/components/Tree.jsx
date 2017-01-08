@@ -14,10 +14,12 @@ class Tree extends React.Component {
 		  .attr('width', this.width)
 		  .attr('height', this.height);
 	this.simulation = d3.forceSimulation()
-	.force('link', d3.forceLink().id((d) => d.index).strength(5))
-	.force('charge', d3.forceManyBody().strength(-100))
+	.velocityDecay(0)
+	.force('link', d3.forceLink().id((d) => d.index).strength(0.5))
+	.force('collide', d3.forceCollide(10))
+	.force('charge', d3.forceManyBody().strength(0))
 	//.force('X', d3.forceX().x(this.width / 2))
-	.force('Y', d3.forceY().y(this.height).strength(0.7));
+	.force('Y', d3.forceY().y(this.height).strength(.1));
 	
 	this.links = this.svg.append("g")
 	.attr('class', "links");	

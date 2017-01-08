@@ -10,6 +10,7 @@ class App extends React.Component {
 	this.updateTree = (nodes, links) => { this._updateTree(nodes, links); };
 	this.addChild = (parent) => { this._addChild(parent); };
 	this.handleNodeClick = (node) => { this._handleNodeClick(node); };
+	this.handleDeletePerson = (node) => { this._handleDeletePerson(node); };
 	this.handleNewPersonSubmit = (person) => { this._handleNewPersonSubmit(person); };
 	this.state = {
 	    tree: null,
@@ -47,6 +48,11 @@ class App extends React.Component {
     _handleNodeClick(node) {
 	this.setState({displayNode: node});
     }
+    _handleDeletePerson(node) {
+	const nodes = this.state.tree.nodes.filter((n) => n !== node);
+	const links = this.state.tree.links.filter((link) => link.source !== node && link.target !== node);
+	this.updateTree(nodes, links);	
+    }
     _handleNewPersonSubmit(person) {
 	person.id = 2;
 	this.updateTree(this.state.tree.nodes.concat([person]), this.state.tree.links);
@@ -54,7 +60,11 @@ class App extends React.Component {
     render() {
 	return (<div>
 	    <Tree data={this.state.tree} handleNodeClick={this.handleNodeClick} />
-	    <NodeDisplay node={this.state.displayNode} handleAddChild={this.addChild} />
+	    <NodeDisplay 
+	      node={this.state.displayNode}
+	      handleAddChild={this.addChild} 
+	      handleDelete={this.handleDeletePerson}
+	    />
 	    <AddPersonControl handleSubmit={this.handleNewPersonSubmit} />
 	    </div>);
     }
