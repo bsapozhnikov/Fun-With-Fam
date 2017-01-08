@@ -4,8 +4,11 @@ var express = require('express');
 var http = require('http');
 var https = require('https');
 var firebase = require('firebase');
+var bodyParser = require('body-parser');
 
 var app = express();
+
+app.use(bodyParser.json());
 
 app.all('/', (req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
@@ -18,10 +21,20 @@ app.get('/', (req, res) => {
     var database = firebase.database();
     database.ref('/tree').once('value').then(function(snapshot) {
 	res.header('Content-Type', 'application/json');
-	res.json(snapshot.val());
+	const tree = snapshot.val();
+	tree.nodes = Object.keys(tree.nodes).map((key) => tree.nodes[key]);
+	res.json(tree);
     }).catch(function(e) {
 	console.log(e);
     });
+});
+
+app.post('/', (req, res) => {
+    var database = firebase.database();
+    const key = database.ref('/tree/nodes').push(req.body).catch(function(e) {
+	console.log(e);	
+    }).key;
+    res.json({id: key});
 });
 
 app.listen(3000, () => {

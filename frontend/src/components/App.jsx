@@ -7,6 +7,7 @@ import * as d3 from 'd3';
 class App extends React.Component {
     constructor(props) {
 	super(props);
+	this.saveNode = (node) => { this._saveNode(node); };
 	this.updateTree = (nodes, links) => { this._updateTree(nodes, links); };
 	this.addChild = (parent) => { this._addChild(parent); };
 	this.handleNodeClick = (node) => { this._handleNodeClick(node); };
@@ -26,6 +27,14 @@ class App extends React.Component {
 	    this.setState({tree: JSON.parse(rsp.response)});
 	});		
     }
+    _saveNode(node) {
+	d3.request("http://localhost:3000/")
+	.header("X-Requested-With", "XMLHttpRequest")
+	.header("Content-Type", "application/json")
+	.post(JSON.stringify(node),(error, rsp) => {
+	    if (error) throw error;
+	})
+    }
     _updateTree(nodes, links) {
 	const newTree = {
 	    nodes,
@@ -37,13 +46,14 @@ class App extends React.Component {
 	const child = {
 	    id: 2,
 	    name: ''
-	}
+	};
 	const link = {
 	    source: parent.id,
 	    target: child.id
-	}
+	};
 	this.updateTree(this.state.tree.nodes.concat([child]),
 	    this.state.tree.links.concat([link]));
+	this.saveNode(child);
     }
     _handleNodeClick(node) {
 	this.setState({displayNode: node});
