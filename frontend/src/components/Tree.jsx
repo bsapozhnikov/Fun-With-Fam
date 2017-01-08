@@ -40,6 +40,7 @@ class Tree extends React.Component {
 	    
 	    var link = this.links.selectAll("line")
 	    .data(this.props.data.links);
+	    link.exit().remove();
 	    var linkEnter = link.enter()
 	    .append("line")
 	    .attr('stroke', "black");
