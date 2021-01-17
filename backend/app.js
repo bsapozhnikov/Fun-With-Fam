@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+const shouldUseMockData = true;
+
 app.use(bodyParser.json());
 
 app.all('/', (req, res, next) => {
@@ -18,21 +20,17 @@ app.all('/', (req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    var database = firebase.database();
-    database.ref('/tree').once('value').then(function(snapshot) {
-	res.header('Content-Type', 'application/json');
-	const tree = snapshot.val();
-	tree.nodes = Object.keys(tree.nodes).map((key) => tree.nodes[key]);
-	res.json(tree);
-    }).catch(function(e) {
-	console.log(e);
-    });
+    var data = getData(shouldUseMockData);
+    if (data) {
+	res.json(data);
+    }
 });
 
 app.post('/', (req, res) => {
+    if (shouldUseMockData) { return }
     var database = firebase.database();
     const key = database.ref('/tree/nodes').push(req.body).catch(function(e) {
-	console.log(e);	
+	console.log(e);
     }).key;
     res.json({id: key});
 });
@@ -48,3 +46,27 @@ app.listen(3000, () => {
     };
     firebase.initializeApp(config);
 });
+
+function getData(shouldReturnMockData) {
+    return shouldReturnMockData ? getMockData() : getFirebaseData()
+}
+
+function getMockData() {
+    var me = { name: "Brian" }
+    var mom = { name: "Alla", root: true }
+    var momIsMom = { source: 1, target: 0 }
+    var tree = { nodes: [me, mom], links: [momIsMom] };
+    return tree;
+}
+
+function getFirebaseData() {
+    var database = firebase.database();
+    database.ref('/tree').once('value').then(function(snapshot) {
+ 	res.header('Content-Type', 'application/json');
+ 	const tree = snapshot.val();
+ 	tree.nodes = Object.keys(tree.nodes).map((key) => tree.nodes[key]);
+	return tree;
+    }).catch(function(e) {
+ 	console.log(e);
+    });
+}
