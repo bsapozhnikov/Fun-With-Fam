@@ -19,12 +19,12 @@ class Tree extends React.Component {
 	.force('charge', d3.forceManyBody().strength(0))
 	//.force('X', d3.forceX().x(this.width / 2))
 	.force('Y', d3.forceY().y(this.height).strength(.1));
-	
+
 	this.links = this.svg.append("g")
-	.attr('class', "links");	
+			 .attr('class', "links");
 	this.nodes = this.svg.append("g")
-	.attr('class', "nodes")
-	
+			 .attr('class', "nodes")
+
 	if (this.props.data) {
 	    this.d3update()
 	}
@@ -37,7 +37,7 @@ class Tree extends React.Component {
 		    n.fy = 30;
 		}
 	    });
-	    
+
 	    var link = this.links.selectAll("line")
 	    .data(this.props.data.links);
 	    link.exit().remove();
@@ -45,16 +45,14 @@ class Tree extends React.Component {
 	    .append("line")
 	    .attr('stroke', "black");
 	    link = linkEnter.merge(link);
-            
+
 	    var node = this.nodes.selectAll(".node")
 	    .data(this.props.data.nodes);
-	    console.log(node);
 	    node.exit().remove();
 	    var nodeEnter = node.enter().append("g")
 	    .attr('class', "node")
 	    .on('click', (d) => this.props.handleNodeClick(d));
 	    node = nodeEnter.merge(node);
-	    console.log(nodeEnter);
 	    nodeEnter.append("circle")
 	    .attr('r', 10)
 	    .attr('style', "fill: white; stroke: black");
@@ -78,7 +76,6 @@ class Tree extends React.Component {
 	    this.simulation
 	    .force('link', d3.forceLink(this.props.data.links).id((d) => d.index).strength(0.5));
 	    this.simulation.alphaTarget(0.5).restart();
-
 	}
     }
     componentDidMount() {
