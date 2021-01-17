@@ -24,8 +24,8 @@ class App extends React.Component {
 	.header("Content-Type", "application/json")
 	.get("", (error, rsp) => {
 	    if (error) throw error;
-	    this.setState({tree: JSON.parse(rsp.response)});
-	});		
+	    this.setState({tree: JSON.parse(rsp.responseText)});
+	});
     }
     _saveNode(node) {
 	d3.request("http://localhost:3000/")
