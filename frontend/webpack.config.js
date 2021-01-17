@@ -14,7 +14,7 @@ module.exports = {
 		test: /\.jsx?$/,
 		exclude: /node_modules/,
 		loader: 'babel-loader'
-	    }	    
+	    }
 	]
     },
     output: {
@@ -24,5 +24,9 @@ module.exports = {
     resolve: {
 	extensions: ['', '.js', '.jsx']
     },
-    plugins: [HTMLWebpackPluginConfig]
+    plugins: [HTMLWebpackPluginConfig],
+    node: {
+	child_process: "empty",
+	fs: "empty"
+    }
 };
