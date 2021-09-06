@@ -58,16 +58,18 @@ class Tree extends React.Component {
 	    .attr('style', "fill: white; stroke: black");
 	    nodeEnter.append("text")
 	    .attr('text-anchor', "middle")
-	    .attr('alignment-baseline', "middle")
-	    .text((d) => d.name || "N/A");
+	    .attr('alignment-baseline', "middle");
+	    node.select("text").text((d) => d.name || "N/A");
 	    var ticked = function() {
 		link.attr("x1", (d) => d.source.x)
                 .attr("y1", (d) => d.source.y)
                 .attr("x2", (d) => d.target.x)
                 .attr("y2", (d) => d.target.y);
-		node.select('text').attr("x", (d) => d.x)
+		node.select('text')
+		.attr("x", (d) => d.x)
 		.attr("y", (d) => d.y);
-		node.select('circle').attr("cx", (d) => d.x)
+		node.select('circle')
+		.attr("cx", (d) => d.x)
                 .attr("cy", (d) => d.y);
             };
 	    this.simulation
@@ -91,4 +93,4 @@ class Tree extends React.Component {
     }
 }
 
-module.exports = Tree;
+export default Tree;

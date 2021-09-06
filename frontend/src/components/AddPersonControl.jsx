@@ -19,4 +19,4 @@ class AddPersonControl extends React.Component {
     }
 }
 
-module.exports = AddPersonControl;
+export default AddPersonControl;
