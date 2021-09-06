@@ -8,8 +8,9 @@ var HTMLWebpackPluginConfig = new HTMLWebpackPlugin({
 
 module.exports = {
     entry: __dirname + '/src/index.jsx',
+    mode: 'development',
     module: {
-	loaders: [
+	rules: [
 	    {
 		test: /\.jsx?$/,
 		exclude: /node_modules/,
@@ -22,11 +23,11 @@ module.exports = {
 	path: __dirname + '/build'
     },
     resolve: {
-	extensions: ['', '.js', '.jsx']
+	extensions: ['', '.js', '.jsx'],
+        fallback: {
+	    child_process: false,
+	    fs: false
+	}
     },
-    plugins: [HTMLWebpackPluginConfig],
-    node: {
-	child_process: "empty",
-	fs: "empty"
-    }
+    plugins: [HTMLWebpackPluginConfig]
 };
