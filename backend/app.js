@@ -5,10 +5,62 @@ var http = require('http');
 var https = require('https');
 var firebase = require('firebase');
 var bodyParser = require('body-parser');
+const fs = require('fs');
+
+class MockDataStoreClient {
+  get() {
+    var me = { name: "Brian" }
+    var mom = { name: "Alla", root: true }
+    var momIsMom = { source: 1, target: 0 }
+    var tree = { nodes: [me, mom], links: [momIsMom] };
+    return tree;
+  }
+
+  post(req, res) {
+    return;
+  }
+}
+
+class LocalDataStoreClient {
+  get() {
+    const rawData = fs.readFileSync('./tree.json');
+    const tree = JSON.parse(rawData);
+    return tree;
+  }
+
+  post(req, res) {
+    console.log(req.body);
+    const rawData = JSON.stringify(req.body);
+    fs.writeFileSync('./tree.json', rawData);
+    return;
+  }
+}
+
+class FirebaseDataStoreClient {
+  get() {
+    var database = firebase.database();
+    database.ref('/tree').once('value').then(function(snapshot) {
+	res.header('Content-Type', 'application/json');
+	const tree = snapshot.val();
+	tree.nodes = Object.keys(tree.nodes).map((key) => tree.nodes[key]);
+	return tree;
+    }).catch(function(e) {
+	console.log(e);
+    });
+  }
+
+  post(req, res) {
+    var database = firebase.database();
+    const key = database.ref('/tree/nodes').push(req.body).catch(function(e) {
+	console.log(e);
+    }).key;
+    res.json({id: key});
+  }
+}
 
 var app = express();
 
-const shouldUseMockData = true;
+const dataStoreClient = new LocalDataStoreClient();
 
 app.use(bodyParser.json());
 
@@ -20,20 +72,13 @@ app.all('/', (req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    var data = getData(shouldUseMockData);
+    var data = dataStoreClient.get();
     if (data) {
 	res.json(data);
     }
 });
 
-app.post('/', (req, res) => {
-    if (shouldUseMockData) { return }
-    var database = firebase.database();
-    const key = database.ref('/tree/nodes').push(req.body).catch(function(e) {
-	console.log(e);
-    }).key;
-    res.json({id: key});
-});
+app.post('/', dataStoreClient.post);
 
 app.listen(3000, () => {
     console.log('Listening!');
@@ -46,27 +91,3 @@ app.listen(3000, () => {
     };
     firebase.initializeApp(config);
 });
-
-function getData(shouldReturnMockData) {
-    return shouldReturnMockData ? getMockData() : getFirebaseData()
-}
-
-function getMockData() {
-    var me = { name: "Brian" }
-    var mom = { name: "Alla", root: true }
-    var momIsMom = { source: 1, target: 0 }
-    var tree = { nodes: [me, mom], links: [momIsMom] };
-    return tree;
-}
-
-function getFirebaseData() {
-    var database = firebase.database();
-    database.ref('/tree').once('value').then(function(snapshot) {
- 	res.header('Content-Type', 'application/json');
- 	const tree = snapshot.val();
- 	tree.nodes = Object.keys(tree.nodes).map((key) => tree.nodes[key]);
-	return tree;
-    }).catch(function(e) {
- 	console.log(e);
-    });
-}
