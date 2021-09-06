@@ -8,7 +8,8 @@ class App extends React.Component {
     constructor(props) {
 	super(props);
 	this.saveNode = (node) => { this._saveNode(node); };
-	this.updateTree = (nodes, links) => { this._updateTree(nodes, links); };
+	this.saveTree = (tree) => { this._saveTree(tree); };
+	this.updateTree = (nodes, links) => { return this._updateTree(nodes, links); };
 	this.addChild = (parent) => { this._addChild(parent); };
 	this.handleNodeClick = (node) => { this._handleNodeClick(node); };
 	this.handleDeletePerson = (node) => { this._handleDeletePerson(node); };
@@ -36,12 +37,21 @@ class App extends React.Component {
 	    if (error) throw error;
 	})
     }
+    _saveTree(tree) {
+	d3.request("http://localhost:3000/")
+	.header("X-Requested-With", "XMLHttpRequest")
+	.header("Content-Type", "application/json")
+	.post(JSON.stringify(tree),(error, rsp) => {
+	    if (error) throw error;
+	})
+    }
     _updateTree(nodes, links) {
 	const newTree = {
 	    nodes,
 	    links
 	}
 	this.setState({tree: newTree});
+	return newTree;
     }
     _addChild(parent) {
 	const child = {
@@ -81,7 +91,8 @@ class App extends React.Component {
     }
     _handleNewPersonSubmit(person) {
 	person.index = 2;
-	this.updateTree(this.state.tree.nodes.concat([person]), this.state.tree.links);
+	const newTree = this.updateTree(this.state.tree.nodes.concat([person]), this.state.tree.links);
+	this.saveTree(newTree);
     }
     render() {
 	return (<div>
