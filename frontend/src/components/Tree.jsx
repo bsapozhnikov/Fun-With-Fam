@@ -36,6 +36,10 @@ class Tree extends React.Component {
 		    n.fx = this.width / 2;
 		    n.fy = 30;
 		}
+		else {
+		    n.fx = null;
+		    n.fy = null;
+		}
 	    });
 
 	    var link = this.links.selectAll("line")

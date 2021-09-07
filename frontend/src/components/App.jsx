@@ -84,10 +84,12 @@ class App extends React.Component {
 		target: link.target == node ? newNode : link.target
 	    };
 	});
-	this.updateTree(nodes, links);
+	const newTree = this.updateTree(nodes, links);
 	if (this.state.displayNode == node) {
 	    this.setState({displayNode: newNode});
 	}
+
+	this.saveTree(newTree);
     }
     _handleNewPersonSubmit(person) {
 	person.index = 2;
