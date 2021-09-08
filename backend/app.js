@@ -29,8 +29,13 @@ class LocalDataStoreClient {
   }
 
   post(req, res) {
-    console.log(req.body);
-    const rawData = JSON.stringify(req.body);
+    const tree = req.body;
+    tree.links.forEach((link) => {
+      link.source = link.source.index || link.source;
+      link.target = link.target.index || link.target;
+    });
+    console.log("POST", tree);
+    const rawData = JSON.stringify(tree);
     fs.writeFileSync('./tree.json', rawData);
     return;
   }
@@ -59,6 +64,7 @@ class FirebaseDataStoreClient {
 }
 
 var app = express();
+app.use(express.json());
 
 const dataStoreClient = new LocalDataStoreClient();
 
