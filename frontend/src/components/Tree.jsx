@@ -4,8 +4,18 @@ import * as d3 from 'd3';
 class Tree extends React.Component {
     constructor(props) {
 	super(props);
+	this.setAge = (n, nodes, parents) => {this._setAge(n, nodes, parents)};
 	this.d3setup = (data) => {this._d3setup(data)};
 	this.d3update = (data) => {this._d3update(data)};
+    }
+    _setAge(node, nodesByIndex, parentsByNode) {
+        if (node.age !== undefined) { return; }
+	node.age = 1;
+        parentsByNode[node.index]?.forEach((parentI) => {
+	    const parent = nodesByIndex[parentI];
+	    this.setAge(parent, nodesByIndex, parentsByNode);
+	    node.age = Math.max(node.age, parent.age + 1);
+	});
     }
     _d3setup() {
 	this.width = 300;
@@ -18,7 +28,11 @@ class Tree extends React.Component {
 	.force('collide', d3.forceCollide(10))
 	.force('charge', d3.forceManyBody().strength(0))
 	//.force('X', d3.forceX().x(this.width / 2))
-	.force('Y', d3.forceY().y(this.height).strength(.1));
+	.force(
+	  'Y',
+	  d3.forceY()
+	  .y((n) => (n.age - 1) * 200)
+	  .strength(.1));
 
 	this.links = this.svg.append("g")
 			 .attr('class', "links");
@@ -31,7 +45,16 @@ class Tree extends React.Component {
     }
     _d3update() {
 	if (this.props.data) {
+	    const parentsByNode = {};
+	    const nodesByIndex = {};
+	    this.props.data.links.forEach((link) => {
+		if (parentsByNode[link.target] === undefined) {
+		    parentsByNode[link.target] = [];
+		}
+		parentsByNode[link.target].push(link.source);
+	    });
 	    this.props.data.nodes.forEach((n) => {
+	        nodesByIndex[n.index] = n;
 		if (n.root) {
 		    n.fx = this.width / 2;
 		    n.fy = 30;
@@ -41,6 +64,7 @@ class Tree extends React.Component {
 		    n.fy = null;
 		}
 	    });
+	    this.props.data.nodes.forEach((n) => this.setAge(n, nodesByIndex, parentsByNode));
 
 	    var link = this.links.selectAll("line")
 	    .data(this.props.data.links);
@@ -80,7 +104,7 @@ class Tree extends React.Component {
 	    .nodes(this.props.data.nodes)
 	    .on('tick', ticked);
 	    this.simulation
-	    .force('link', d3.forceLink(this.props.data.links).id((d) => d.index).strength(0.5));
+	    .force('link', d3.forceLink(this.props.data.links).id((d) => d.index).strength(0.1).distance(40));
 	    this.simulation.alphaTarget(0.5).restart();
 	}
     }
