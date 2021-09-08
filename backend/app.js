@@ -31,8 +31,8 @@ class LocalDataStoreClient {
   post(req, res) {
     const tree = req.body;
     tree.links.forEach((link) => {
-      link.source = link.source.index || link.source;
-      link.target = link.target.index || link.target;
+      link.source = link.source.index ?? link.source;
+      link.target = link.target.index ?? link.target;
     });
     console.log("POST", tree);
     const rawData = JSON.stringify(tree);
