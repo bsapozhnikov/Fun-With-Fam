@@ -10,6 +10,7 @@ class App extends React.Component {
 	this.saveTree = (tree) => { this._saveTree(tree); };
 	this.updateTree = (nodes, links) => { return this._updateTree(nodes, links); };
 	this.addChild = (parent) => { this._addChild(parent); };
+	this.addParent = (child) => { this._addParent(child); };
 	this.handleNodeClick = (node) => { this._handleNodeClick(node); };
 	this.handleDeletePerson = (node) => { this._handleDeletePerson(node); };
 	this.handleEditPerson = (node, update) => { this._handleEditPerson(node, update); };
@@ -54,7 +55,24 @@ class App extends React.Component {
 	};
 	const newTree = this.updateTree(
 	    this.state.tree.nodes.concat([child]),
-	    this.state.tree.links.concat([link]));
+	    this.state.tree.links
+	    .map((link) => { return { ...link, source: link.source.index, target: link.target.index }; })
+	    .concat([link]));
+	this.saveTree(newTree);
+    }
+    _addParent(child) {
+	const parent = {
+	    index: this.state.tree.nodes.length,
+	};
+	const link = {
+	    source: parent.index,
+	    target: child.index
+	};
+	const newTree = this.updateTree(
+	    this.state.tree.nodes.concat([parent]),
+	    this.state.tree.links
+	    .map((link) => { return { ...link, source: link.source.index, target: link.target.index }; })
+	    .concat([link]));
 	this.saveTree(newTree);
     }
     _handleNodeClick(node) {
@@ -89,6 +107,7 @@ class App extends React.Component {
 	    <NodeDisplay
 	      node={this.state.displayNode}
 	      handleAddChild={this.addChild}
+	      handleAddParent={this.addParent}
 	      handleEdit={this.handleEditPerson}
 	      handleDelete={this.handleDeletePerson}
 	    />
