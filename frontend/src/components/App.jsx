@@ -7,7 +7,6 @@ import * as d3 from 'd3';
 class App extends React.Component {
     constructor(props) {
 	super(props);
-	this.saveNode = (node) => { this._saveNode(node); };
 	this.saveTree = (tree) => { this._saveTree(tree); };
 	this.updateTree = (nodes, links) => { return this._updateTree(nodes, links); };
 	this.addChild = (parent) => { this._addChild(parent); };
@@ -29,14 +28,6 @@ class App extends React.Component {
 	    this.setState({tree: JSON.parse(rsp.responseText)});
 	});
     }
-    _saveNode(node) {
-	d3.request("http://localhost:3000/")
-	.header("X-Requested-With", "XMLHttpRequest")
-	.header("Content-Type", "application/json")
-	.post(JSON.stringify(node),(error, rsp) => {
-	    if (error) throw error;
-	})
-    }
     _saveTree(tree) {
 	d3.request("http://localhost:3000/")
 	.header("X-Requested-With", "XMLHttpRequest")
@@ -55,16 +46,16 @@ class App extends React.Component {
     }
     _addChild(parent) {
 	const child = {
-	    index: 2,
-	    name: ''
+	    index: this.state.tree.nodes.length,
 	};
 	const link = {
 	    source: parent.index,
 	    target: child.index
 	};
-	this.updateTree(this.state.tree.nodes.concat([child]),
+	const newTree = this.updateTree(
+	    this.state.tree.nodes.concat([child]),
 	    this.state.tree.links.concat([link]));
-	this.saveNode(child);
+	this.saveTree(newTree);
     }
     _handleNodeClick(node) {
 	this.setState({displayNode: node});
@@ -77,13 +68,9 @@ class App extends React.Component {
     _handleEditPerson(node, update) {
         const newNode = { ...node, ...update };
 	const nodes = this.state.tree.nodes.map((n) => n == node ? newNode : n);
-	const links = this.state.tree.links.map((link) => {
-	    return {
-	        ...link,
-	        source: link.source == node ? newNode : link.source,
-		target: link.target == node ? newNode : link.target
-	    };
-	});
+	const links = this.state.tree.links
+	.map((link) => { return { ...link, source: link.source.index, target: link.target.index }; });
+
 	const newTree = this.updateTree(nodes, links);
 	if (this.state.displayNode == node) {
 	    this.setState({displayNode: newNode});
@@ -92,7 +79,7 @@ class App extends React.Component {
 	this.saveTree(newTree);
     }
     _handleNewPersonSubmit(person) {
-	person.index = 2;
+	person.index = this.state.tree.nodes.length;
 	const newTree = this.updateTree(this.state.tree.nodes.concat([person]), this.state.tree.links);
 	this.saveTree(newTree);
     }
