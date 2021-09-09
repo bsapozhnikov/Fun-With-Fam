@@ -1,13 +1,19 @@
 "use strict"
 
-var express = require('express');
+import express from 'express';
+
 var http = require('http');
 var https = require('https');
 var firebase = require('firebase');
 var bodyParser = require('body-parser');
 const fs = require('fs');
 
-class MockDataStoreClient {
+interface DataStoreClient {
+  get():any;
+  post(req: express.Request, res: express.Response):void;
+}
+
+class MockDataStoreClient implements DataStoreClient {
   get() {
     var me = { name: "Brian" }
     var mom = { name: "Alla", root: true }
@@ -21,7 +27,7 @@ class MockDataStoreClient {
   }
 }
 
-class LocalDataStoreClient {
+class LocalDataStoreClient implements DataStoreClient {
   get() {
     const rawData = fs.readFileSync('./tree.json');
     const tree = JSON.parse(rawData);
@@ -41,7 +47,7 @@ class LocalDataStoreClient {
   }
 }
 
-class FirebaseDataStoreClient {
+class FirebaseDataStoreClient implements DataStoreClient {
   get() {
     var database = firebase.database();
     database.ref('/tree').once('value').then(function(snapshot) {
