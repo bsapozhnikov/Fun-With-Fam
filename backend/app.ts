@@ -45,7 +45,6 @@ class FirebaseDataStoreClient {
   get() {
     var database = firebase.database();
     database.ref('/tree').once('value').then(function(snapshot) {
-	res.header('Content-Type', 'application/json');
 	const tree = snapshot.val();
 	tree.nodes = Object.keys(tree.nodes).map((key) => tree.nodes[key]);
 	return tree;
