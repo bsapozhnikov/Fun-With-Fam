@@ -3,6 +3,7 @@
 import express from 'express';
 import DataStoreClient from './datastoreclients/interface';
 import LocalDataStoreClient from './datastoreclients/local';
+import { Tree } from './models';
 
 var http = require('http');
 var https = require('https');
@@ -25,11 +26,13 @@ app.all('/', (req, res, next) => {
 app.get('/', (req, res) => {
     var data = dataStoreClient.get();
     if (data) {
-	res.json(data);
+	res.json(new Tree(data));
     }
 });
 
-app.post('/', dataStoreClient.post);
+app.post('/', (req, res) => {
+    dataStoreClient.post(new Tree(req.body), res);
+});
 
 app.listen(3000, () => {
     console.log('Listening!');

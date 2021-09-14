@@ -1,6 +1,6 @@
 import fs from 'fs';
-
 import DataStoreClient from './interface';
+import { Tree } from '../models';
 
 class LocalDataStoreClient implements DataStoreClient {
   init() {}
@@ -11,8 +11,7 @@ class LocalDataStoreClient implements DataStoreClient {
     return tree;
   }
 
-  post(req, res) {
-    const tree = req.body;
+  post(tree : Tree, res) {
     tree.links.forEach((link) => {
       link.source = link.source.index ?? link.source;
       link.target = link.target.index ?? link.target;

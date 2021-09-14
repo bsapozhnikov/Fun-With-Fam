@@ -4,7 +4,7 @@ import { Tree } from './../models';
 
 interface DataStoreClient {
   get(): Tree;
-  post(req: express.Request, res: express.Response): void;
+  post(tree: Tree, res: express.Response): void;
 }
 
 export default DataStoreClient;
