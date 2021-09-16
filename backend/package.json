@@ -5,7 +5,8 @@
   "main": "target/app.js",
   "scripts": {
     "start": "tsc && node target/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "win-clean": "for /f \"tokens=5\" %p in ('netstat -ano ^| grep 0.0.0.0:3000') do taskkill /PID %p /F"
   },
   "author": "",
   "license": "ISC",
