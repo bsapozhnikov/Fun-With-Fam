@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server",
+    "win-clean": "for /f \"tokens=5\" %p in ('netstat -ano ^| grep 0.0.0.0:8080') do taskkill /PID %p /F"
   },
   "repository": {
     "type": "git",
