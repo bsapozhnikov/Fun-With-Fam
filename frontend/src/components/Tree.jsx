@@ -48,12 +48,14 @@ class Tree extends React.Component {
 	    const parentsByNode = {};
 	    const nodesByIndex = {};
 	    this.props.data.links.forEach((link) => {
-		if (parentsByNode[link.target] === undefined) {
-		    parentsByNode[link.target] = [];
+		const targetI = link.target.index ?? link.target;
+		if (parentsByNode[targetI] === undefined) {
+		    parentsByNode[targetI] = [];
 		}
-		parentsByNode[link.target].push(link.source);
+		parentsByNode[targetI].push(link.source.index ?? link.source);
 	    });
 	    this.props.data.nodes.forEach((n) => {
+		n.age = undefined;
 	        nodesByIndex[n.index] = n;
 		if (n.root) {
 		    n.fx = this.width / 2;
