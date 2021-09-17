@@ -81,7 +81,8 @@ class App extends React.Component {
     _handleDeletePerson(node) {
 	const nodes = this.state.tree.nodes.filter((n) => n !== node);
 	const links = this.state.tree.links.filter((link) => link.source !== node && link.target !== node);
-	this.updateTree(nodes, links);
+	const newTree = this.updateTree(nodes, links);
+	this.saveTree(newTree);
     }
     _handleEditPerson(node, update) {
         const newNode = { ...node, ...update };
