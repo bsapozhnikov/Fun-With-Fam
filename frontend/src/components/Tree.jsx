@@ -26,8 +26,8 @@ class Tree extends React.Component {
 	this.simulation = d3.forceSimulation()
 	.velocityDecay(0.1)
 	.force('collide', d3.forceCollide(10))
-	.force('charge', d3.forceManyBody().strength(0))
-	//.force('X', d3.forceX().x(this.width / 2))
+	.force('charge', d3.forceManyBody().strength(-100))
+	.force('X', d3.forceX().x(this.width / 2).strength(0.01))
 	.force(
 	  'Y',
 	  d3.forceY()
