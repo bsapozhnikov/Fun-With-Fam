@@ -8,6 +8,7 @@ class LocalDataStoreClient implements DataStoreClient {
   get() {
     const rawData = fs.readFileSync('./tree.json').toString();
     const tree = JSON.parse(rawData);
+    console.log("backend got data", tree);
     return tree;
   }
 
