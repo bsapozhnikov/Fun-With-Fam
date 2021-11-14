@@ -4,7 +4,6 @@ export class Node {
   index: number;
   name: string;
   isRoot: boolean;
-  age?: number;
 
   constructor(data: { index: number, name: string, isRoot: boolean }) {
     this.index = data.index as number;
@@ -46,7 +45,6 @@ export class SimulationPersonDatum implements d3.SimulationNodeDatum {
 
   constructor(data: Node) {
     this.index = data.index;
-    this.age = data.age;
     this.isRoot = data.isRoot;
   }
 }

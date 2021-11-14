@@ -28,7 +28,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
   links?: any;
   nodesByIndex: { [index: number]: Node };
   simulationNodesByIndex: { [index: number]: SimulationPersonDatum };
-  setAge: (n: Node, nodes: { [index: number]: Node }, parents: { [index: number]: number[] }) => void;
+  setAge: (n: SimulationPersonDatum, nodes: { [index: number]: Node }, parents: { [index: number]: number[] }) => void;
   d3setup: () => void;
   d3update: () => void;
   treeToSimulationData: (tree: Tree) => SimulationTreeData;
@@ -46,7 +46,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
   _treeToSimulationData(tree: Tree) {
     let toSimulationPersonData = (node: Node) => {
       if (!(node.index in this.simulationNodesByIndex)) {
-	console.log("toSimulationPersonData 0", this.nodesByIndex[node.index], node)
 	const simNode = new SimulationPersonDatum(node);
 	this.simulationNodesByIndex[node.index] = simNode;
 	return simNode;
@@ -62,12 +61,13 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       links: tree.links.map(link => new SimulationRelationDatum(link))
     };
   }
-  _setAge(node: Node, nodesByIndex: { [index: number]: Node }, parentsByNode: { [index: number]: number[] }) {
-    // console.log("Setting age for", node, nodesByIndex, parentsByNode)
+  _setAge(node: SimulationPersonDatum, nodesByIndex: { [index: number]: Node }, parentsByNode: { [index: number]: number[] }) {
+    console.log("Setting age for", node, nodesByIndex, parentsByNode)
+    if (node.index == undefined) { return; }
     if (node.age !== undefined) { return; }
     node.age = 1;
     parentsByNode[node.index]?.forEach((parentI) => {
-      const parent = nodesByIndex[parentI];
+      const parent = this.simulationNodesByIndex[parentI];
       this.setAge(parent, nodesByIndex, parentsByNode);
       node.age = Math.max(node.age as number, (parent.age as number) + 1);
     });
@@ -100,34 +100,20 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
 	return;
       }
 
-      const parentsByNode: { [index: number]: number[] } = {};
       this.nodesByIndex = {};
+      this.props.data.nodes.forEach(n => this.nodesByIndex[n.index] = n);
+      const simulationTree = this.treeToSimulationData(this.props.data);
+
+      const parentsByNode: { [index: number]: number[] } = {};
       this.props.data.links.forEach((link) => {
-	//const targetI = link.target.index ?? link.target;
 	const targetI = link.target;
 	if (parentsByNode[targetI] === undefined) {
 	  parentsByNode[targetI] = [];
 	}
 	parentsByNode[targetI].push(link.source);
-	//parentsByNode[targetI].push(link.source.index ?? link.source);
       });
-      const nodeData = this.props.data.nodes.map((n) => {
-	const nodeDatum = n as SimulationPersonDatum;
-	nodeDatum.age = undefined;
-	this.nodesByIndex[n.index] = n;
-	if (n.isRoot) {
-	  nodeDatum.fx = this.width / 2;
-	  nodeDatum.fy = 30;
-	}
-	else {
-	  nodeDatum.fx = null;
-	  nodeDatum.fy = null;
-	}
-	return nodeDatum;
-      });
-      this.props.data.nodes.forEach((n) => this.setAge(n, this.nodesByIndex, parentsByNode));
-
-      const simulationTree = this.treeToSimulationData(this.props.data);
+      simulationTree.nodes.forEach((n) => n.age = undefined);
+      simulationTree.nodes.forEach((n) => this.setAge(n, this.nodesByIndex, parentsByNode));
 
       var link = this.links?.selectAll("line")
       .data(simulationTree.links);
@@ -153,7 +139,10 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       nodeEnter.append("text")
       .attr('text-anchor', "middle")
       .attr('alignment-baseline', "middle");
-      node.select("text").text((d: Node) => this.nodesByIndex[d.index].name || "N/A");
+      node.select("text").text((d: SimulationPersonDatum) => {
+	if (d.index == undefined) { return "N/A"; }
+	return this.nodesByIndex[d.index].name || "N/A";
+      });
       var ticked = function() {
 	link.attr("x1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).x)
 	.attr("y1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).y)
