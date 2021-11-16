@@ -76,7 +76,6 @@ class App extends React.Component<AppProps, AppState> {
 	const newTree = this.updateTree(
 	    this.state.tree.nodes.concat([child]),
 	    this.state.tree.links
-	    //.map((link: Link) => { return { ...link, source: link.source.index, target: link.target.index }; })
 	    .concat([link]));
 	this.saveTree(newTree);
     }
@@ -108,7 +107,6 @@ class App extends React.Component<AppProps, AppState> {
     const newNode = { ...node, ...update };
     const nodes = this.state.tree.nodes.map((n: Node) => n.index == node.index ? newNode : n);
     const links = this.state.tree.links;
-    //.map((link: Link) => { return { ...link, source: link.source, target: link.target }; });XS
 
     console.log("handleEditPerson", newNode);
 

@@ -54,7 +54,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       }
       else {
 	const curSimNode = this.simulationNodesByIndex[node.index];
-	console.log("toSimulationPersonData 1", curSimNode, node);
 	const nextSimNode = { ...curSimNode, ...new SimulationPersonDatum(node) };
 	this.simulationNodesByIndex[node.index] = nextSimNode;
 	return nextSimNode;
@@ -63,7 +62,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
     let toSimulationRelationData = (link: Link) => {
       if (!(link.index in this.simulationLinksByIndex)) {
 	const simLink = new SimulationRelationDatum(link);
-	console.log("toSimulationRelationData 0", simLink, link);
 	this.simulationLinksByIndex[link.index] = simLink;
 	return simLink;
       }
@@ -81,7 +79,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
     };
   }
   _setAge(node: SimulationPersonDatum, nodesByIndex: { [index: number]: Node }, parentsByNode: { [index: number]: number[] }) {
-    // console.log("Setting age for", node, nodesByIndex, parentsByNode)
     if (node.index == undefined) { return; }
     if (node.age !== undefined) { return; }
     node.age = 1;
@@ -137,7 +134,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       var link = this.links?.selectAll("line")
       .data(simulationTree.links);
       link.exit().remove();
-      console.log("update link", link, link.data());
       var linkEnter = link.enter()
       .append("line")
       .attr('stroke', "black");
@@ -146,7 +142,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       var node = this.nodes?.selectAll(".node")
       .data(simulationTree.nodes);
       node.exit().remove();
-      console.log("update node", node, node.data());
       var nodeEnter = node.enter().append("g")
       .attr('class', "node")
       .on('click', (simNode: SimulationPersonDatum) => {
@@ -161,7 +156,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       .attr('text-anchor', "middle")
       .attr('alignment-baseline', "middle");
       node.select("text").text((d: SimulationPersonDatum) => {
-	console.log("TreeView node text", this.nodesByIndex, d);
 	if (d.index == undefined) { return "N/A"; }
 	return this.nodesByIndex[d.index].name || "N/A";
       });
