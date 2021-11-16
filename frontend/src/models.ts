@@ -13,10 +13,12 @@ export class Node {
 };
 
 export class Link {
+  index: number;
   source: number;
   target: number;
 
-  constructor(data: { source: number, target: number }) {
+  constructor(data: { index: number, source: number, target: number }) {
+    this.index = data.index;
     this.source = data.source;
     this.target = data.target;
   }
@@ -26,9 +28,9 @@ export class Tree {
   nodes: Node[];
   links: Link[];
 
-  constructor() {
-    this.nodes = [];
-    this.links = [];
+  constructor(data: { nodes: Node[], links: Link[] }) {
+    this.nodes = data.nodes;
+    this.links = data.links;
   }
 }
 

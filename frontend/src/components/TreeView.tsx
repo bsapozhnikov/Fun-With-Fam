@@ -28,6 +28,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
   links?: any;
   nodesByIndex: { [index: number]: Node };
   simulationNodesByIndex: { [index: number]: SimulationPersonDatum };
+  simulationLinksByIndex: { [index: number]: SimulationRelationDatum };
   setAge: (n: SimulationPersonDatum, nodes: { [index: number]: Node }, parents: { [index: number]: number[] }) => void;
   d3setup: () => void;
   d3update: () => void;
@@ -38,6 +39,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
     console.log("TreeView constructor", props);
     this.nodesByIndex = {};
     this.simulationNodesByIndex = {};
+    this.simulationLinksByIndex = {};
     this.setAge = (n, nodes, parents) => {this._setAge(n, nodes, parents)};
     this.d3setup = () => {this._d3setup()};
     this.d3update = () => {this._d3update()};
@@ -52,17 +54,34 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       }
       else {
 	const curSimNode = this.simulationNodesByIndex[node.index];
-	console.log("toSimulationPersonData 1", curSimNode, node)
-	return { ...curSimNode, ...new SimulationPersonDatum(node) };
+	console.log("toSimulationPersonData 1", curSimNode, node);
+	const nextSimNode = { ...curSimNode, ...new SimulationPersonDatum(node) };
+	this.simulationNodesByIndex[node.index] = nextSimNode;
+	return nextSimNode;
       }
     };
+    let toSimulationRelationData = (link: Link) => {
+      if (!(link.index in this.simulationLinksByIndex)) {
+	const simLink = new SimulationRelationDatum(link);
+	console.log("toSimulationRelationData 0", simLink, link);
+	this.simulationLinksByIndex[link.index] = simLink;
+	return simLink;
+      }
+      else {
+	const curSimLink = this.simulationLinksByIndex[link.index];
+	const nextSimLink = { ...curSimLink, ...new SimulationRelationDatum(link) };
+	this.simulationLinksByIndex[link.index] = nextSimLink;
+	console.log("toSimulationRelationData 1", curSimLink, link)
+	return nextSimLink;
+      }
+    }
     return {
       nodes: tree.nodes.map(toSimulationPersonData),
-      links: tree.links.map(link => new SimulationRelationDatum(link))
+      links: tree.links.map(toSimulationRelationData)
     };
   }
   _setAge(node: SimulationPersonDatum, nodesByIndex: { [index: number]: Node }, parentsByNode: { [index: number]: number[] }) {
-    console.log("Setting age for", node, nodesByIndex, parentsByNode)
+    // console.log("Setting age for", node, nodesByIndex, parentsByNode)
     if (node.index == undefined) { return; }
     if (node.age !== undefined) { return; }
     node.age = 1;
@@ -118,6 +137,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       var link = this.links?.selectAll("line")
       .data(simulationTree.links);
       link.exit().remove();
+      console.log("update link", link, link.data());
       var linkEnter = link.enter()
       .append("line")
       .attr('stroke', "black");
@@ -126,6 +146,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       var node = this.nodes?.selectAll(".node")
       .data(simulationTree.nodes);
       node.exit().remove();
+      console.log("update node", node, node.data());
       var nodeEnter = node.enter().append("g")
       .attr('class', "node")
       .on('click', (simNode: SimulationPersonDatum) => {
@@ -140,6 +161,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       .attr('text-anchor', "middle")
       .attr('alignment-baseline', "middle");
       node.select("text").text((d: SimulationPersonDatum) => {
+	console.log("TreeView node text", this.nodesByIndex, d);
 	if (d.index == undefined) { return "N/A"; }
 	return this.nodesByIndex[d.index].name || "N/A";
       });
@@ -168,10 +190,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
   componentDidMount() {
     console.log("TreeView did mount", this.props.data);
 	this.d3setup();
-  }
-  shouldComponentUpdate(nextProps: any, nextState: any) {
-    console.log("TreeView will update", nextProps);
-    return true;
   }
   componentDidUpdate() {
     console.log("TreeView did update", this.props.data);

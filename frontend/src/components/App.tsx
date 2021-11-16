@@ -57,10 +57,10 @@ class App extends React.Component<AppProps, AppState> {
       });
     }
   _updateTree(nodes: Node[], links: Link[]) {
-      const newTree = { nodes, links };
-	this.setState({tree: newTree});
-	return newTree;
-    }
+    const newTree = new Tree({ nodes, links });
+    this.setState({ tree: newTree });
+    return newTree;
+  }
     _addChild(parent: Node) {
       if (!this.state.tree) { return; }
       const child = {
@@ -68,10 +68,11 @@ class App extends React.Component<AppProps, AppState> {
 	name: "",
 	isRoot: false
       };
-	const link = {
-	    source: parent.index,
-	    target: child.index
-	};
+      const link = {
+	index: this.state.tree.links.length,
+	source: parent.index,
+	target: child.index
+      };
 	const newTree = this.updateTree(
 	    this.state.tree.nodes.concat([child]),
 	    this.state.tree.links
@@ -79,20 +80,19 @@ class App extends React.Component<AppProps, AppState> {
 	    .concat([link]));
 	this.saveTree(newTree);
     }
-    _addParent(child: Node) {
-      if (!this.state.tree) { return; }
-      const parent = new Node({ index: this.state.tree.nodes.length, name:"", isRoot: false });
-	const link = {
-	    source: parent.index,
-	    target: child.index
-	};
-	const newTree = this.updateTree(
-	    this.state.tree.nodes.concat([parent]),
-	    this.state.tree.links
-	  //.map((link: Link) => { return { ...link, source: link.source.index, target: link.target.index }; })
-	    .concat([link]));
-	this.saveTree(newTree);
-    }
+  _addParent(child: Node) {
+    if (!this.state.tree) { return; }
+    const parent = new Node({ index: this.state.tree.nodes.length, name:"", isRoot: false });
+    const link = new Link({
+      index: this.state.tree.links.length,
+      source: parent.index,
+      target: child.index
+    });
+    const newTree = this.updateTree(
+      this.state.tree.nodes.concat([parent]),
+      this.state.tree.links.concat([link]));
+    this.saveTree(newTree);
+  }
   _handleNodeClick(node: Node) {
     this.setState({displayNode: node});
   }
