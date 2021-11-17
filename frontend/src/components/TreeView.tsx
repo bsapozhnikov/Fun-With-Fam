@@ -29,7 +29,10 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
   nodesByIndex: { [index: number]: Node };
   simulationNodesByIndex: { [index: number]: SimulationPersonDatum };
   simulationLinksByIndex: { [index: number]: SimulationRelationDatum };
-  setAge: (n: SimulationPersonDatum, nodes: { [index: number]: Node }, parents: { [index: number]: number[] }) => void;
+  setAge: (
+    n: SimulationPersonDatum,
+    children: { [index: number]: number[] },
+    parents: { [index: number]: number[] }) => { minAge: number, maxAge: number };
   d3setup: () => void;
   d3update: () => void;
   treeToSimulationData: (tree: Tree) => SimulationTreeData;
@@ -40,7 +43,7 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
     this.nodesByIndex = {};
     this.simulationNodesByIndex = {};
     this.simulationLinksByIndex = {};
-    this.setAge = (n, nodes, parents) => {this._setAge(n, nodes, parents)};
+    this.setAge = (n, children, parents) => { return this._setAge(n, children, parents); };
     this.d3setup = () => {this._d3setup()};
     this.d3update = () => {this._d3update()};
     this.treeToSimulationData = memoize(this._treeToSimulationData);
@@ -78,17 +81,40 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       links: tree.links.map(toSimulationRelationData)
     };
   }
-  _setAge(node: SimulationPersonDatum, nodesByIndex: { [index: number]: Node }, parentsByNode: { [index: number]: number[] }) {
-    if (node.index == undefined) { return; }
-    if (node.age !== undefined) { return; }
-    node.age = 1;
-    parentsByNode[node.index]?.forEach((parentI) => {
-      const parent = this.simulationNodesByIndex[parentI];
-      this.setAge(parent, nodesByIndex, parentsByNode);
-      node.age = Math.max(node.age as number, (parent.age as number) + 1);
-    });
-  }
-    _d3setup() {
+  _setAge(
+    node: SimulationPersonDatum,
+    childrenByNode: { [index:number]: number[] },
+    parentsByNode: { [index: number]: number[] }) {
+      console.log("setAge", node)
+      if (node.index == undefined) { return { minAge: 0, maxAge: 0 }; }
+      if (node.age == undefined) { return { minAge: 0, maxAge: 0 }; }
+
+      let minAge = node.age;
+      let maxAge = node.age;
+
+      childrenByNode[node.index]?.forEach((childI) => {
+	if (!(childI in this.simulationNodesByIndex )) { return; }
+	const child = this.simulationNodesByIndex[childI];
+	if (child.age !== undefined) { return; }
+	child.age = (node.age ?? 0) + 1;
+	const { minAge: innerMinAge, maxAge: innerMaxAge } = this.setAge(child, childrenByNode, parentsByNode);
+	minAge = Math.min(minAge, innerMinAge);
+	maxAge = Math.max(maxAge, innerMaxAge);
+      });
+
+      parentsByNode[node.index]?.forEach((parentI) => {
+	if (!(parentI in this.simulationNodesByIndex )) { return; }
+	const parent = this.simulationNodesByIndex[parentI];
+	if (parent.age !== undefined) { return; }
+	parent.age = (node.age ?? 0) - 1;
+	const { minAge: innerMinAge, maxAge: innerMaxAge } = this.setAge(parent, childrenByNode, parentsByNode);
+	minAge = Math.min(minAge, innerMinAge);
+	maxAge = Math.max(maxAge, innerMaxAge);
+      });
+
+      return { minAge, maxAge };
+    }
+  _d3setup() {
       this.svg = d3.select(this.refs.tree as d3.BaseType)
       .append('svg')
 		  .attr('width', this.width)
@@ -120,16 +146,38 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
       this.props.data.nodes.forEach(n => this.nodesByIndex[n.index] = n);
       const simulationTree = this.treeToSimulationData(this.props.data);
 
+      const childrenByNode: { [index:number]: number[] } = {};
       const parentsByNode: { [index: number]: number[] } = {};
       this.props.data.links.forEach((link) => {
-	const targetI = link.target;
-	if (parentsByNode[targetI] === undefined) {
-	  parentsByNode[targetI] = [];
+	const parentI = link.source;
+	const childI = link.target;
+	if (parentsByNode[childI] === undefined) {
+	  parentsByNode[childI] = [];
 	}
-	parentsByNode[targetI].push(link.source);
+	parentsByNode[childI].push(parentI);
+
+	if (childrenByNode[parentI] === undefined) {
+	  childrenByNode[parentI] = [];
+	}
+	childrenByNode[parentI].push(childI);
       });
-      simulationTree.nodes.forEach((n) => n.age = undefined);
-      simulationTree.nodes.forEach((n) => this.setAge(n, this.nodesByIndex, parentsByNode));
+
+      if (simulationTree.nodes.length > 0) {
+	simulationTree.nodes.forEach(n => n.age = undefined);
+	const n = simulationTree.nodes[0];
+	n.age = 0;
+	const { minAge, maxAge } = this.setAge(
+	  simulationTree.nodes[0],
+	  childrenByNode,
+	  parentsByNode);
+	console.log("d3update precalibrated age", minAge, maxAge);
+	simulationTree.nodes.forEach(n => {
+	  if (n.age !== undefined) {
+	    n.age += 1 - minAge;
+	  }
+	});
+	console.log("d3update calibrated age", simulationTree.nodes);
+      }
 
       var link = this.links?.selectAll("line")
       .data(simulationTree.links);
