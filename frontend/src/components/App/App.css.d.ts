@@ -1,4 +1,5 @@
 export interface IAppCss {
+  'treeView': string;
   'personView': string;
 }
 

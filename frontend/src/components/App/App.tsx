@@ -4,7 +4,7 @@ import TreeView from '../TreeView/TreeView';
 import NodeDisplay from '../NodeDisplay/NodeDisplay';
 import AddPersonControl from '../AddPersonControl';
 
-import { locals } from './App.css';
+import { locals as styles } from './App.css';
 
 import { json } from 'd3-fetch'
 import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../../models';
@@ -132,6 +132,7 @@ class App extends React.Component<AppProps, AppState> {
 	<TreeView
 	data={this.state.tree as Tree}
 	handleNodeClick={this.handleNodeClick}
+	className={styles.treeView}
 	/>
 	<NodeDisplay
 	node={this.state.displayNode}
@@ -139,7 +140,7 @@ class App extends React.Component<AppProps, AppState> {
 	handleAddParent={this.addParent}
 	handleEdit={this.handleEditPerson}
 	handleDelete={this.handleDeletePerson}
-	className={locals.personView}
+	className={styles.personView}
 	/>
 	<AddPersonControl handleSubmit={this.handleNewPersonSubmit} />
 	</div>);

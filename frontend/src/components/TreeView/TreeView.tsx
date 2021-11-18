@@ -242,7 +242,7 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
 	this.d3update();
     }
     render() {
-	console.log('rendering tree', this.props.data);
-	return (<div id="tree" ref="tree" className={this.props.className}></div>);
+      console.log('rendering tree', this.props.data);
+      return (<div id="tree" ref="tree" className={this.props.className}></div>);
     }
 }

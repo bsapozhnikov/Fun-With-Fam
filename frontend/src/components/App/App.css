@@ -1,3 +1,7 @@
+.treeView {
+    float: left;
+}
+
 .personView {
     float: right;
 }
