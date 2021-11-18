@@ -2,7 +2,7 @@ import React from 'react';
 import memoize from 'memoize-one';
 import * as d3 from 'd3';
 
-import './TreeView.css';
+import { locals as styles} from './TreeView.css';
 
 import {
   Node,
@@ -24,8 +24,6 @@ class TreeViewState {
 }
 
 export default class TreeView extends React.Component<TreeViewProps & HtmlAttributes, TreeViewState> {
-  width = 300;
-  height = 300;
   svg: any;
   simulation: any;
   nodes?: any;
@@ -119,20 +117,19 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
       return { minAge, maxAge };
     }
   _d3setup() {
-      this.svg = d3.select(this.refs.tree as d3.BaseType)
-      .append('svg')
-		  .attr('width', this.width)
-		  .attr('height', this.height);
-	this.simulation = d3.forceSimulation()
-	.velocityDecay(0.1)
-	.force('collide', d3.forceCollide(10))
-	.force('charge', d3.forceManyBody().strength(-100))
-	.force('X', d3.forceX().x(this.width / 2).strength(0.01))
-	.force(
-	  'Y',
-	  d3.forceY()
-	  .y((n: SimulationPersonDatum) => ((n.age ?? 1) - 1) * 200)
-	  .strength(.1));
+    const treeElement = this.refs.tree as d3.BaseType & HTMLElement;
+    console.log('d3setup', treeElement, treeElement?.offsetWidth);
+    this.svg = d3.select(treeElement).append('svg').attr('class', styles.treeCanvas);
+    this.simulation = d3.forceSimulation()
+    .velocityDecay(0.1)
+    .force('collide', d3.forceCollide(10))
+    .force('charge', d3.forceManyBody().strength(-100))
+    .force('X', d3.forceX().x(() => treeElement.offsetWidth / 2).strength(0.01))
+    .force(
+      'Y',
+      d3.forceY()
+      .y((n: SimulationPersonDatum) => ((n.age ?? 1) - 1) * 200)
+      .strength(.1));
 
 	this.links = this.svg.append("g")
 			 .attr('class', "links");

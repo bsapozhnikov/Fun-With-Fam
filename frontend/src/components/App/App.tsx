@@ -142,7 +142,7 @@ class App extends React.Component<AppProps, AppState> {
 	handleDelete={this.handleDeletePerson}
 	className={styles.personView}
 	/>
-	<AddPersonControl handleSubmit={this.handleNewPersonSubmit} />
+	{/* <AddPersonControl handleSubmit={this.handleNewPersonSubmit} /> */}
 	</div>);
     }
 }
