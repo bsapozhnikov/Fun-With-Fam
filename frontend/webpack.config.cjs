@@ -21,6 +21,18 @@ module.exports = {
 		test: /\.tsx?$/,
 		exclude: /node_modules/,
 		loader: 'ts-loader'
+	    },
+	    {
+		test: /\.css$/i,
+		use: [
+		     'style-loader',
+	     		{
+				loader: 'typings-for-css-modules-loader',
+				options: {
+					modules: true
+				}
+			}
+		]
 	    }
 	]
     },
@@ -29,7 +41,7 @@ module.exports = {
 	path: path.join(__dirname, 'build')
     },
     resolve: {
-	extensions: ['', '.js', '.jsx', '.ts', '.tsx'],
+	extensions: ['', '.js', '.jsx', '.ts', '.tsx', '.css'],
         fallback: {
 	    child_process: false,
 	    fs: false

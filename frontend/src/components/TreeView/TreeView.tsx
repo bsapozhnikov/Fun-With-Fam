@@ -2,6 +2,8 @@ import React from 'react';
 import memoize from 'memoize-one';
 import * as d3 from 'd3';
 
+import './TreeView.css';
+
 import {
   Node,
   Link,
@@ -9,7 +11,9 @@ import {
   SimulationPersonDatum,
   SimulationRelationDatum,
   SimulationTreeData
-} from '../models';
+} from '../../models';
+
+type HtmlAttributes = React.HTMLAttributes<HTMLDivElement>;
 
 class TreeViewProps {
   constructor(public data: Tree, public handleNodeClick: (node: Node) => void) {}
@@ -19,7 +23,7 @@ class TreeViewState {
 
 }
 
-export default class TreeView extends React.Component<TreeViewProps, TreeViewState> {
+export default class TreeView extends React.Component<TreeViewProps & HtmlAttributes, TreeViewState> {
   width = 300;
   height = 300;
   svg: any;
@@ -239,6 +243,6 @@ export default class TreeView extends React.Component<TreeViewProps, TreeViewSta
     }
     render() {
 	console.log('rendering tree', this.props.data);
-	return (<div id="tree" ref="tree"></div>);
+	return (<div id="tree" ref="tree" className={this.props.className}></div>);
     }
 }

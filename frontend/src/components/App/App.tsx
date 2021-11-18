@@ -1,10 +1,13 @@
-import React from 'react';
-import TreeView from './TreeView';
-import NodeDisplay from './NodeDisplay';
-import AddPersonControl from './AddPersonControl';
 import * as d3 from 'd3';
+import React from 'react';
+import TreeView from '../TreeView/TreeView';
+import NodeDisplay from '../NodeDisplay/NodeDisplay';
+import AddPersonControl from '../AddPersonControl';
+
+import { locals } from './App.css';
+
 import { json } from 'd3-fetch'
-import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../models';
+import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../../models';
 
 class AppProps {}
 
@@ -123,18 +126,23 @@ class App extends React.Component<AppProps, AppState> {
       const newTree = this.updateTree(this.state.tree.nodes.concat([person]), this.state.tree.links);
       this.saveTree(newTree);
     }
-    render() {
-	return (<div>
-	    <TreeView data={this.state.tree as Tree} handleNodeClick={this.handleNodeClick} />
-	    <NodeDisplay
-	      node={this.state.displayNode}
-	      handleAddChild={this.addChild}
-	      handleAddParent={this.addParent}
-	      handleEdit={this.handleEditPerson}
-	      handleDelete={this.handleDeletePerson}
-	    />
-	    <AddPersonControl handleSubmit={this.handleNewPersonSubmit} />
-	    </div>);
+  render() {
+      return (
+	<div>
+	<TreeView
+	data={this.state.tree as Tree}
+	handleNodeClick={this.handleNodeClick}
+	/>
+	<NodeDisplay
+	node={this.state.displayNode}
+	handleAddChild={this.addChild}
+	handleAddParent={this.addParent}
+	handleEdit={this.handleEditPerson}
+	handleDelete={this.handleDeletePerson}
+	className={locals.personView}
+	/>
+	<AddPersonControl handleSubmit={this.handleNewPersonSubmit} />
+	</div>);
     }
 }
 
