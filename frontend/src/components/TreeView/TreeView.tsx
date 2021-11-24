@@ -3,6 +3,7 @@ import ITreeViewProps from './ITreeViewProps';
 import memoize from 'memoize-one';
 import React from 'react';
 import TreeNodeView from '../TreeNodeView/TreeNodeView';
+import TreeLinkView from '../TreeLinkView/TreeLinkView';
 
 import { locals as styles} from './TreeView.css';
 
@@ -30,7 +31,6 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
     children: { [index: number]: number[] },
     parents: { [index: number]: number[] }) => { minAge: number, maxAge: number };
   d3setup: () => void;
-  d3update: (simTree: SimulationTreeData) => void;
   treeToSimulationData: (tree: Tree) => SimulationTreeData;
 
   constructor(props: ITreeViewProps) {
@@ -41,7 +41,6 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
     this.simulationLinksByIndex = {};
     this.setAge = (n, children, parents) => { return this._setAge(n, children, parents); };
     this.d3setup = () => {this._d3setup()};
-    this.d3update = (simTree) => {this._d3update(simTree)};
     this.treeToSimulationData = memoize(this._treeToSimulationData);
   }
   _treeToSimulationData(tree: Tree) {
@@ -81,7 +80,6 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
     node: SimulationPersonDatum,
     childrenByNode: { [index:number]: number[] },
     parentsByNode: { [index: number]: number[] }) {
-      console.log("setAge", node)
       if (node.index == undefined) { return { minAge: 0, maxAge: 0 }; }
       if (node.age == undefined) { return { minAge: 0, maxAge: 0 }; }
 
@@ -114,6 +112,7 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
     const treeElement = this.refs.tree as d3.BaseType & HTMLElement;
     const svgElement = this.refs.svg as d3.BaseType & HTMLElement;
     const nodesElement = this.refs.nodes as d3.BaseType;
+    const linksElement = this.refs.links as d3.BaseType;
     this.svg = d3.select(svgElement);
     this.simulation = d3.forceSimulation()
     .velocityDecay(0.1)
@@ -126,16 +125,46 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
       .y((n: SimulationPersonDatum) => ((n.age ?? 1) - 1) * 200)
       .strength(.1));
 
-	this.links = this.svg.insert("g", ":first-child")
-			 .attr('class', "links");
-	this.nodes = d3.select(nodesElement);
+    this.nodes = d3.select(nodesElement);
+    this.links = d3.select(linksElement);
   }
-  _d3update(simulationTree: SimulationTreeData) {
-      if (!this.props.data) {
-	return;
-      }
+  componentDidMount() {
+    console.log("TreeView did mount", this.props.data);
+    this.d3setup();
+  }
+  render() {
+    console.log('rendering tree', this.props.data);
+    var simulationTree: SimulationTreeData = { nodes: [], links: [] };
+    var nodeViews: JSX.Element[] = [];
+    var linkViews: JSX.Element[] = [];
+    if (this.props.data) {
+      this.props.data.nodes.forEach(n => this.nodesByIndex[n.index] = n);
+      simulationTree = this.treeToSimulationData(this.props.data);
+      nodeViews = this.props.data.nodes.map((personNode) =>
+	<TreeNodeView
+	key={personNode.index}
+	simulationData={this.simulationNodesByIndex[personNode.index]}
+	personData={personNode}
+	handleClick={this.props.handleNodeClick}
+	/>);
+      linkViews = this.props.data.links.map((relationLink) =>
+	<TreeLinkView
+	key={relationLink.index}
+	/>);
+    }
 
-      const childrenByNode: { [index:number]: number[] } = {};
+    return (
+      <div id="tree" ref="tree" className={this.props.className}>
+      <svg ref="svg" className={styles.treeCanvas}>
+      <g ref="links" className="links">{linkViews}</g>
+      <g ref="nodes" className="nodes">{nodeViews}</g>
+      </svg>
+      </div>);
+  }
+  componentDidUpdate() {
+    const simulationTree = this.treeToSimulationData(this.props.data);
+
+    const childrenByNode: { [index:number]: number[] } = {};
       const parentsByNode: { [index: number]: number[] } = {};
       this.props.data.links.forEach((link) => {
 	const parentI = link.source;
@@ -159,58 +188,16 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
 	  simulationTree.nodes[0],
 	  childrenByNode,
 	  parentsByNode);
-	console.log("d3update precalibrated age", minAge, maxAge);
 	simulationTree.nodes.forEach(n => {
 	  if (n.age !== undefined) {
 	    n.age += 1 - minAge;
 	  }
 	});
-	console.log("d3update calibrated age", simulationTree.nodes);
       }
 
-      var link = this.links?.selectAll("line")
-      .data(simulationTree.links);
-      link.exit().remove();
-      var linkEnter = link.enter()
-      .append("line")
-      .attr('stroke', "black");
-      link = linkEnter.merge(link);
-    }
-  componentDidMount() {
-    console.log("TreeView did mount", this.props.data);
-	this.d3setup();
-  }
-  render() {
-    console.log('rendering tree', this.props.data);
-    var simulationTree: SimulationTreeData = { nodes: [], links: [] };
-    var nodeViews: JSX.Element[] = [];
-    if (this.props.data) {
-      this.props.data.nodes.forEach(n => this.nodesByIndex[n.index] = n);
-      simulationTree = this.treeToSimulationData(this.props.data);
-      this.d3update(simulationTree);
-      nodeViews = this.props.data.nodes.map((personNode) =>
-	<TreeNodeView
-	key={personNode.index}
-	simulationData={this.simulationNodesByIndex[personNode.index]}
-	personData={personNode}
-	handleClick={this.props.handleNodeClick}
-	/>);
-      console.log(nodeViews);
-    }
-
-    return (
-      <div id="tree" ref="tree" className={this.props.className}>
-      <svg ref="svg" className={styles.treeCanvas}>
-      <g ref="nodes" className="nodes">
-      {nodeViews}
-      </g>
-      </svg>
-      </div>);
-  }
-  componentDidUpdate() {
-    const simulationTree = this.treeToSimulationData(this.props.data);
-    var link = this.links?.selectAll("line").data(simulationTree.links);
     var node = this.nodes?.selectAll(".node").data(simulationTree.nodes);
+    var link = this.links?.selectAll("line").data(simulationTree.links);
+
     var ticked = function() {
       link.attr("x1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).x)
       .attr("y1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).y)
@@ -223,8 +210,8 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
       .attr("cx", (d: SimulationPersonDatum) => d.x)
       .attr("cy", (d: SimulationPersonDatum) => d.y);
     };
-    console.log("componentDidUpdate", this.simulation.nodes(), node)
     this.simulation.nodes(simulationTree.nodes).on('tick', ticked);
+
     this.simulation
     .force('link', d3.forceLink(simulationTree.links)
       .id((d) => d.index as number)
