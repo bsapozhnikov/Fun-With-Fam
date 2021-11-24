@@ -1,8 +1,6 @@
+import * as d3 from 'd3';
 import ITreeNodeViewProps from './ITreeNodeViewProps';
 import React from 'react';
-import * as d3 from 'd3';
-
-import { Node, SimulationPersonDatum } from '../../models';
 
 type HtmlAttributes = React.HTMLAttributes<HTMLDivElement>;
 

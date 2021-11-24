@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import ITreeViewProps from './ITreeViewProps';
 import memoize from 'memoize-one';
 import React from 'react';
 import TreeNodeView from '../TreeNodeView/TreeNodeView';
@@ -16,15 +17,7 @@ import {
 
 type HtmlAttributes = React.HTMLAttributes<HTMLDivElement>;
 
-class TreeViewProps {
-  constructor(public data: Tree, public handleNodeClick: (node: Node) => void) {}
-}
-
-class TreeViewState {
-
-}
-
-export default class TreeView extends React.Component<TreeViewProps & HtmlAttributes, TreeViewState> {
+export default class TreeView extends React.Component<ITreeViewProps & HtmlAttributes, {}> {
   svg: any;
   simulation: any;
   nodes?: any;
@@ -40,7 +33,7 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
   d3update: (simTree: SimulationTreeData) => void;
   treeToSimulationData: (tree: Tree) => SimulationTreeData;
 
-  constructor(props: TreeViewProps) {
+  constructor(props: ITreeViewProps) {
     super(props);
     console.log("TreeView constructor", props);
     this.nodesByIndex = {};
