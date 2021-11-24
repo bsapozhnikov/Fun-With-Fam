@@ -1,6 +1,7 @@
-import React from 'react';
-import memoize from 'memoize-one';
 import * as d3 from 'd3';
+import memoize from 'memoize-one';
+import React from 'react';
+import TreeNodeView from '../TreeNodeView/TreeNodeView';
 
 import { locals as styles} from './TreeView.css';
 
@@ -36,7 +37,7 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
     children: { [index: number]: number[] },
     parents: { [index: number]: number[] }) => { minAge: number, maxAge: number };
   d3setup: () => void;
-  d3update: () => void;
+  d3update: (simTree: SimulationTreeData) => void;
   treeToSimulationData: (tree: Tree) => SimulationTreeData;
 
   constructor(props: TreeViewProps) {
@@ -47,7 +48,7 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
     this.simulationLinksByIndex = {};
     this.setAge = (n, children, parents) => { return this._setAge(n, children, parents); };
     this.d3setup = () => {this._d3setup()};
-    this.d3update = () => {this._d3update()};
+    this.d3update = (simTree) => {this._d3update(simTree)};
     this.treeToSimulationData = memoize(this._treeToSimulationData);
   }
   _treeToSimulationData(tree: Tree) {
@@ -118,8 +119,9 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
     }
   _d3setup() {
     const treeElement = this.refs.tree as d3.BaseType & HTMLElement;
-    console.log('d3setup', treeElement, treeElement?.offsetWidth);
-    this.svg = d3.select(treeElement).append('svg').attr('class', styles.treeCanvas);
+    const svgElement = this.refs.svg as d3.BaseType & HTMLElement;
+    const nodesElement = this.refs.nodes as d3.BaseType;
+    this.svg = d3.select(svgElement);
     this.simulation = d3.forceSimulation()
     .velocityDecay(0.1)
     .force('collide', d3.forceCollide(10))
@@ -131,21 +133,14 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
       .y((n: SimulationPersonDatum) => ((n.age ?? 1) - 1) * 200)
       .strength(.1));
 
-	this.links = this.svg.append("g")
+	this.links = this.svg.insert("g", ":first-child")
 			 .attr('class', "links");
-	this.nodes = this.svg.append("g")
-			 .attr('class', "nodes")
-
-      this.d3update()
-    }
-    _d3update() {
+	this.nodes = d3.select(nodesElement);
+  }
+  _d3update(simulationTree: SimulationTreeData) {
       if (!this.props.data) {
 	return;
       }
-
-      this.nodesByIndex = {};
-      this.props.data.nodes.forEach(n => this.nodesByIndex[n.index] = n);
-      const simulationTree = this.treeToSimulationData(this.props.data);
 
       const childrenByNode: { [index:number]: number[] } = {};
       const parentsByNode: { [index: number]: number[] } = {};
@@ -187,59 +182,61 @@ export default class TreeView extends React.Component<TreeViewProps & HtmlAttrib
       .append("line")
       .attr('stroke', "black");
       link = linkEnter.merge(link);
-
-      var node = this.nodes?.selectAll(".node")
-      .data(simulationTree.nodes);
-      node.exit().remove();
-      var nodeEnter = node.enter().append("g")
-      .attr('class', "node")
-      .on('click', (simNode: SimulationPersonDatum) => {
-	if (simNode.index == undefined) { return; }
-	return this.props.handleNodeClick(this.nodesByIndex[simNode.index]);
-      });
-      node = nodeEnter.merge(node);
-      nodeEnter.append("circle")
-      .attr('r', 10)
-      .attr('style', "fill: white; stroke: black");
-      nodeEnter.append("text")
-      .attr('text-anchor', "middle")
-      .attr('alignment-baseline', "middle");
-      node.select("text").text((d: SimulationPersonDatum) => {
-	if (d.index == undefined) { return "N/A"; }
-	return this.nodesByIndex[d.index].name || "N/A";
-      });
-      var ticked = function() {
-	link.attr("x1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).x)
-	.attr("y1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).y)
-	.attr("x2", (d: SimulationRelationDatum) => (d.target as SimulationPersonDatum).x)
-	.attr("y2", (d: SimulationRelationDatum) => (d.target as SimulationPersonDatum).y);
-	node.select('text')
-	.attr("x", (d: SimulationPersonDatum) => d.x)
-	.attr("y", (d: SimulationPersonDatum) => d.y);
-	node.select('circle')
-	.attr("cx", (d: SimulationPersonDatum) => d.x)
-	.attr("cy", (d: SimulationPersonDatum) => d.y);
-      };
-      this.simulation
-      .nodes(simulationTree.nodes)
-      .on('tick', ticked);
-      this.simulation
-      .force('link', d3.forceLink(simulationTree.links)
-	.id((d) => d.index as number)
-	.strength(0.1)
-	.distance(40));
-      this.simulation.alphaTarget(0.5).restart();
     }
   componentDidMount() {
     console.log("TreeView did mount", this.props.data);
 	this.d3setup();
   }
+  render() {
+    console.log('rendering tree', this.props.data);
+    var simulationTree: SimulationTreeData = { nodes: [], links: [] };
+    var nodeViews: JSX.Element[] = [];
+    if (this.props.data) {
+      this.props.data.nodes.forEach(n => this.nodesByIndex[n.index] = n);
+      simulationTree = this.treeToSimulationData(this.props.data);
+      this.d3update(simulationTree);
+      nodeViews = this.props.data.nodes.map((personNode) =>
+	<TreeNodeView
+	key={personNode.index}
+	simulationData={this.simulationNodesByIndex[personNode.index]}
+	personData={personNode}
+	handleClick={this.props.handleNodeClick}
+	/>);
+      console.log(nodeViews);
+    }
+
+    return (
+      <div id="tree" ref="tree" className={this.props.className}>
+      <svg ref="svg" className={styles.treeCanvas}>
+      <g ref="nodes" className="nodes">
+      {nodeViews}
+      </g>
+      </svg>
+      </div>);
+  }
   componentDidUpdate() {
-    console.log("TreeView did update", this.props.data);
-	this.d3update();
-    }
-    render() {
-      console.log('rendering tree', this.props.data);
-      return (<div id="tree" ref="tree" className={this.props.className}></div>);
-    }
+    const simulationTree = this.treeToSimulationData(this.props.data);
+    var link = this.links?.selectAll("line").data(simulationTree.links);
+    var node = this.nodes?.selectAll(".node").data(simulationTree.nodes);
+    var ticked = function() {
+      link.attr("x1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).x)
+      .attr("y1", (d: SimulationRelationDatum) => (d.source as SimulationPersonDatum).y)
+      .attr("x2", (d: SimulationRelationDatum) => (d.target as SimulationPersonDatum).x)
+      .attr("y2", (d: SimulationRelationDatum) => (d.target as SimulationPersonDatum).y);
+      node.select('text')
+      .attr("x", (d: SimulationPersonDatum) => d.x)
+      .attr("y", (d: SimulationPersonDatum) => d.y);
+      node.select('circle')
+      .attr("cx", (d: SimulationPersonDatum) => d.x)
+      .attr("cy", (d: SimulationPersonDatum) => d.y);
+    };
+    console.log("componentDidUpdate", this.simulation.nodes(), node)
+    this.simulation.nodes(simulationTree.nodes).on('tick', ticked);
+    this.simulation
+    .force('link', d3.forceLink(simulationTree.links)
+      .id((d) => d.index as number)
+      .strength(0.1)
+      .distance(40));
+    this.simulation.alphaTarget(0.5).restart();
+  }
 }
