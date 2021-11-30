@@ -1,25 +1,16 @@
 import React from 'react';
 import EditableTextDisplay from '../EditableTextDisplay';
-
-import { Node } from '../../models';
+import IPersonDisplayProps from './IPersonDisplayProps';
 
 type HtmlAttributes = React.HTMLAttributes<HTMLDivElement>;
 
-interface PersonDisplayProps {
-  handleAddChild: (n: Node) => void;
-  handleAddParent: (n: Node) => void;
-  handleEdit: (n: Node, update: Partial<Node>) => void;
-  handleDelete: (n: Node) => void
-  node?: Node;
-}
-
-export default class extends React.Component<PersonDisplayProps & HtmlAttributes, {}> {
+export default class extends React.Component<IPersonDisplayProps & HtmlAttributes, {}> {
   handleAddChild: () => void;
   handleAddParent: () => void;
   handleEditName: (name: string) => void;
   handleEditRoot: () => void;
   handleDelete: () => void;
-    constructor(props: PersonDisplayProps) {
+    constructor(props: IPersonDisplayProps) {
 	super(props);
 	this.handleAddChild = () => this.props.node && this.props.handleAddChild(this.props.node);
 	this.handleAddParent = () => this.props.node && this.props.handleAddParent(this.props.node);
