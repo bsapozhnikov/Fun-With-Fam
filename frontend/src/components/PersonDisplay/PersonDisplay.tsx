@@ -5,7 +5,7 @@ import { Node } from '../../models';
 
 type HtmlAttributes = React.HTMLAttributes<HTMLDivElement>;
 
-interface NodeDisplayProps {
+interface PersonDisplayProps {
   handleAddChild: (n: Node) => void;
   handleAddParent: (n: Node) => void;
   handleEdit: (n: Node, update: Partial<Node>) => void;
@@ -13,15 +13,13 @@ interface NodeDisplayProps {
   node?: Node;
 }
 
-interface NodeDisplayState {}
-
-export default class NodeDisplay extends React.Component<NodeDisplayProps & HtmlAttributes, NodeDisplayState> {
+export default class extends React.Component<PersonDisplayProps & HtmlAttributes, {}> {
   handleAddChild: () => void;
   handleAddParent: () => void;
   handleEditName: (name: string) => void;
   handleEditRoot: () => void;
   handleDelete: () => void;
-    constructor(props: NodeDisplayProps) {
+    constructor(props: PersonDisplayProps) {
 	super(props);
 	this.handleAddChild = () => this.props.node && this.props.handleAddChild(this.props.node);
 	this.handleAddParent = () => this.props.node && this.props.handleAddParent(this.props.node);

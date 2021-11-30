@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import React from 'react';
 import TreeView from '../TreeView/TreeView';
-import NodeDisplay from '../NodeDisplay/NodeDisplay';
+import PersonDisplay from '../PersonDisplay/PersonDisplay';
 import AddPersonControl from '../AddPersonControl';
 
 import { locals as styles } from './App.css';
@@ -134,7 +134,7 @@ class App extends React.Component<AppProps, AppState> {
 	handleNodeClick={this.handleNodeClick}
 	className={styles.treeView}
 	/>
-	<NodeDisplay
+	<PersonDisplay
 	node={this.state.displayNode}
 	handleAddChild={this.addChild}
 	handleAddParent={this.addParent}
