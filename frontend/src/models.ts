@@ -3,12 +3,10 @@ import * as d3 from 'd3';
 export class Node {
   index: number;
   name: string;
-  isRoot: boolean;
 
-  constructor(data: { index: number, name: string, isRoot: boolean }) {
+  constructor(data: { index: number, name: string }) {
     this.index = data.index as number;
     this.name = data.name;
-    this.isRoot = data.isRoot;
   }
 };
 
@@ -43,11 +41,9 @@ export class SimulationPersonDatum implements d3.SimulationNodeDatum {
   fx?: number | null;
   fy?: number | null;
   age?: number;
-  isRoot?: boolean;
 
   constructor(data: Node) {
     this.index = data.index;
-    this.isRoot = data.isRoot;
   }
 }
 

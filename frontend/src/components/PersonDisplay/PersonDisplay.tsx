@@ -8,14 +8,12 @@ export default class extends React.Component<IPersonDisplayProps & HtmlAttribute
   handleAddChild: () => void;
   handleAddParent: () => void;
   handleEditName: (name: string) => void;
-  handleEditRoot: () => void;
   handleDelete: () => void;
     constructor(props: IPersonDisplayProps) {
 	super(props);
 	this.handleAddChild = () => this.props.node && this.props.handleAddChild(this.props.node);
 	this.handleAddParent = () => this.props.node && this.props.handleAddParent(this.props.node);
 	this.handleEditName = (newName) => this.props.node && this.props.handleEdit(this.props.node, { name: newName });
-	this.handleEditRoot = () => this.props.node && this.props.handleEdit(this.props.node, { isRoot: !this.props.node.isRoot });
 	this.handleDelete = () => this.props.node && this.props.handleDelete(this.props.node);
 	this.state = { isEditingName: false };
     }
@@ -26,7 +24,6 @@ export default class extends React.Component<IPersonDisplayProps & HtmlAttribute
 		<button onClick={this.handleAddChild}>Add Child</button>
 		<button onClick={this.handleAddParent}>Add Parent</button>
 		<button onClick={this.handleDelete}>Delete</button>
-		<input type="checkbox" checked={this.props.node.isRoot} onChange={this.handleEditRoot}></input>Root
 		</div>);
 	}
 	else {

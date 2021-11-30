@@ -66,25 +66,24 @@ class App extends React.Component<AppProps, AppState> {
   }
     _addChild(parent: Node) {
       if (!this.state.tree) { return; }
-      const child = {
+      const child = new Node({
 	index: this.state.tree.nodes.length,
-	name: "",
-	isRoot: false
-      };
+	name: ""
+      });
       const link = {
 	index: this.state.tree.links.length,
 	source: parent.index,
 	target: child.index
       };
-	const newTree = this.updateTree(
-	    this.state.tree.nodes.concat([child]),
-	    this.state.tree.links
-	    .concat([link]));
-	this.saveTree(newTree);
+      const newTree = this.updateTree(
+	this.state.tree.nodes.concat([child]),
+	this.state.tree.links
+	.concat([link]));
+      this.saveTree(newTree);
     }
   _addParent(child: Node) {
     if (!this.state.tree) { return; }
-    const parent = new Node({ index: this.state.tree.nodes.length, name:"", isRoot: false });
+    const parent = new Node({ index: this.state.tree.nodes.length, name:"" });
     const link = new Link({
       index: this.state.tree.links.length,
       source: parent.index,

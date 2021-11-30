@@ -1,8 +1,7 @@
 class Node {
-  static Empty: Node = { name: "", index: 0, root: false };
+  static Empty: Node = { name: "", index: 0 };
   name: string;
   index: number;
-  root: boolean;
 
   constructor(nodeObj: Node) {
     Object.keys(Node.Empty).map(k => this[k] = nodeObj[k]);
