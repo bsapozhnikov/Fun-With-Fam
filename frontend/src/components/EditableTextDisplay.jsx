@@ -8,12 +8,21 @@ class EditableTextDisplay extends React.Component {
     }
     render() {
     	if (this.state.isEditingText) {
-	    return (<div>
-	        <input type="text" value={this.props.text} onChange={this.handleEdit}></input>
-		</div>);
+	    return (
+	    <div>
+	    <input
+		type="text"
+		value={this.props.text}
+		autoFocus
+		onChange={this.handleEdit}
+		onBlur={() => this.setState({ isEditingText: false })}/>
+	    </div>);
 	}
 	else {
-	    return (<div onClick={() => this.setState({isEditingText: true})}> {this.props.text || "N/A"} </div>)
+	    return (
+	    <div onClick={() => this.setState({ isEditingText: true })}>
+	    {this.props.text || "N/A"}
+	    </div>);
 	}
     }
 }
