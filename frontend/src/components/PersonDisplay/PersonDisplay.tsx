@@ -2,6 +2,8 @@ import React from 'react';
 import EditableTextDisplay from '../EditableTextDisplay';
 import IPersonDisplayProps from './IPersonDisplayProps';
 
+import { locals as styles } from './PersonDisplay.css';
+
 type HtmlAttributes = React.HTMLAttributes<HTMLDivElement>;
 
 export default class extends React.Component<IPersonDisplayProps & HtmlAttributes, {}> {
@@ -21,9 +23,9 @@ export default class extends React.Component<IPersonDisplayProps & HtmlAttribute
 	if (this.props.node) {
 	    return (<div className={this.props.className}>
 	        <EditableTextDisplay text={this.props.node.name} handleEdit={this.handleEditName} />
-		<button onClick={this.handleAddChild}>Add Child</button>
-		<button onClick={this.handleAddParent}>Add Parent</button>
-		<button onClick={this.handleDelete}>Delete</button>
+		<div className={styles.personCtrlBtn} onClick={this.handleAddChild}>Add Child</div>
+		<div className={styles.personCtrlBtn} onClick={this.handleAddParent}>Add Parent</div>
+		<div className={styles.personCtrlBtn} onClick={this.handleDelete}>Delete</div>
 		</div>);
 	}
 	else {

@@ -1,0 +1,11 @@
+.personCtrlBtn {
+    padding: 2px;
+    border: 1px black solid;
+    border-radius: 8px;
+    margin: 2px;
+    text-align: center;
+}
+
+.personCtrlBtn:hover {
+    background: grey;
+}
