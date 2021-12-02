@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import React from 'react';
+import IApp from './IApp';
 import IAppState from './IAppState';
 import TreeView from '../TreeView/TreeView';
 import PersonDisplay from '../PersonDisplay/PersonDisplay';
@@ -10,30 +11,17 @@ import { locals as styles } from './App.css';
 import { json } from 'd3-fetch'
 import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../../models';
 
-class AppState {
-  tree?: Tree;
-  displayNode?: Node;
-}
-
-class App extends React.Component<{}, IAppState> {
-  saveTree: (tree: Tree) => void;
-  updateTree: (nodes: Node[], links: Link[]) => Tree;
-  addNewChild: (parent: Node) => void;
-  addParent: (child: Node) => void;
-  handleNodeClick: (node: Node) => void;
-  handleDeletePerson: (node: Node) => void;
-  handleEditPerson: (node: Node, update: Partial<Node>) => void;
-  handleNewPersonSubmit: (person: Node) => void;
+class App extends React.Component<{}, IAppState> implements IApp {
     constructor(props: {}) {
-    super(props);
-    this.saveTree = (tree) => { this._saveTree(tree); };
-    this.updateTree = (nodes, links) => { return this._updateTree(nodes, links); };
-    this.addNewChild = (parent) => { this._addNewChild(parent); };
-    this.addParent = (child) => { this._addParent(child); };
-    this.handleNodeClick = (node) => { this._handleNodeClick(node); };
-    this.handleDeletePerson = (node) => { this._handleDeletePerson(node); };
-    this.handleEditPerson = (node, update: Partial<Node>) => { this._handleEditPerson(node, update); };
-    this.handleNewPersonSubmit = (person) => { this._handleNewPersonSubmit(person); };
+	super(props);
+	this.saveTree = this.saveTree.bind(this);
+	this.updateTree = this.updateTree.bind(this);
+	this.addNewChild = this.addNewChild.bind(this);
+	this.addParent = this.addParent.bind(this);
+	this.handleNodeClick = this.handleNodeClick.bind(this);
+	this.handleDeletePerson = this.handleDeletePerson.bind(this);
+	this.handleEditPerson = this.handleEditPerson.bind(this);
+	this.handleNewPersonSubmit = this.handleNewPersonSubmit.bind(this);
     this.state = {
       tree: undefined,
       displayNode: undefined
@@ -48,7 +36,7 @@ class App extends React.Component<{}, IAppState> {
       });
     }
 
-    _saveTree(tree: Tree) {
+    saveTree(tree: Tree) {
       json("http://localhost:3000/", {
 	method: 'POST',
 	body: JSON.stringify(tree),
@@ -58,12 +46,12 @@ class App extends React.Component<{}, IAppState> {
 	}
       });
     }
-  _updateTree(nodes: Node[], links: Link[]) {
-    const newTree = new Tree({ nodes, links });
-    this.setState({ tree: newTree });
-    return newTree;
-  }
-    _addNewChild(parent: Node) {
+    updateTree(nodes: Node[], links: Link[]) {
+	const newTree = new Tree({ nodes, links });
+	this.setState({ tree: newTree });
+	return newTree;
+    }
+    addNewChild(parent: Node) {
 	if (!this.state.tree) { return; }
 	const child = new Node({
 	    index: this.state.tree.nodes.length,
@@ -79,7 +67,7 @@ class App extends React.Component<{}, IAppState> {
 	    this.state.tree.links.concat([link]));
 	this.saveTree(newTree);
     }
-  _addParent(child: Node) {
+    addParent(child: Node) {
     if (!this.state.tree) { return; }
     const parent = new Node({ index: this.state.tree.nodes.length, name:"" });
     const link = new Link({
@@ -92,17 +80,17 @@ class App extends React.Component<{}, IAppState> {
       this.state.tree.links.concat([link]));
     this.saveTree(newTree);
   }
-  _handleNodeClick(node: Node) {
+    handleNodeClick(node: Node) {
     this.setState({displayNode: node});
   }
-    _handleDeletePerson(node: Node) {
+    handleDeletePerson(node: Node) {
       if (!this.state.tree) { return; }
       const nodes = this.state.tree.nodes.filter((n: Node) => n !== node);
 	const links = this.state.tree.links.filter((link: Link) => link.source !== node.index && link.target !== node.index);
 	const newTree = this.updateTree(nodes, links);
 	this.saveTree(newTree);
     }
-  _handleEditPerson(node: Node, update: Partial<Node>) {
+    handleEditPerson(node: Node, update: Partial<Node>) {
     if (!this.state.tree) { return; }
     const newNode = { ...node, ...update };
     const nodes = this.state.tree.nodes.map((n: Node) => n.index == node.index ? newNode : n);
@@ -117,7 +105,7 @@ class App extends React.Component<{}, IAppState> {
 
     this.saveTree(newTree);
   }
-  _handleNewPersonSubmit(person: Node) {
+    handleNewPersonSubmit(person: Node) {
     if (!this.state.tree) { return; }
       person.index = this.state.tree.nodes.length;
       const newTree = this.updateTree(this.state.tree.nodes.concat([person]), this.state.tree.links);
