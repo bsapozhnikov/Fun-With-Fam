@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import React from 'react';
+import IAppState from './IAppState';
 import TreeView from '../TreeView/TreeView';
 import PersonDisplay from '../PersonDisplay/PersonDisplay';
 import AddPersonControl from '../AddPersonControl';
@@ -9,14 +10,12 @@ import { locals as styles } from './App.css';
 import { json } from 'd3-fetch'
 import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../../models';
 
-class AppProps {}
-
 class AppState {
   tree?: Tree;
   displayNode?: Node;
 }
 
-class App extends React.Component<AppProps, AppState> {
+class App extends React.Component<{}, IAppState> {
   saveTree: (tree: Tree) => void;
   updateTree: (nodes: Node[], links: Link[]) => Tree;
   addNewChild: (parent: Node) => void;
@@ -25,7 +24,7 @@ class App extends React.Component<AppProps, AppState> {
   handleDeletePerson: (node: Node) => void;
   handleEditPerson: (node: Node, update: Partial<Node>) => void;
   handleNewPersonSubmit: (person: Node) => void;
-  constructor(props: AppProps) {
+    constructor(props: {}) {
     super(props);
     this.saveTree = (tree) => { this._saveTree(tree); };
     this.updateTree = (nodes, links) => { return this._updateTree(nodes, links); };
