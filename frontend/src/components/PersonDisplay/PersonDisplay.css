@@ -1,4 +1,4 @@
-.personCtrlBtn {
+.personCtrlBtnGrp {
     padding: 2px;
     border: 1px black solid;
     border-radius: 8px;
@@ -6,6 +6,22 @@
     text-align: center;
 }
 
-.personCtrlBtn:hover {
+.personCtrlSecondaryBtn {
+    display: none;
+    padding: 2px;
+    border: 1px black solid;
+    border-radius: 8px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    margin: 2px;
+    text-align: center;
+}
+
+.personCtrlSecondaryBtn:hover {
     background: grey;
+    cursor: pointer;
+}
+
+.personCtrlBtnGrp:hover .personCtrlSecondaryBtn {
+    display: block;
 }

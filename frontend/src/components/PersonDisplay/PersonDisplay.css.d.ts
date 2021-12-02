@@ -1,5 +1,6 @@
 export interface IPersonDisplayCss {
-  'personCtrlBtn': string;
+  'personCtrlBtnGrp': string;
+  'personCtrlSecondaryBtn': string;
 }
 
 export const locals: IPersonDisplayCss;
