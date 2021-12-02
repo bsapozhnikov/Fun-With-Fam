@@ -50,35 +50,35 @@ class App extends React.Component<{}, IAppState> {
 	this.setState({ tree: newTree });
 	return newTree;
     }
-    addNewChild(parent: Node) {
-	if (!this.state.tree) { return; }
-	const child = this.createNewPerson();
-	const link = {
-	    index: this.state.tree.links.length,
-	    source: parent.index,
-	    target: child.index
-	};
-	const newTree = this.updateTree(
-	    this.state.tree.nodes.concat([child]),
-	    this.state.tree.links.concat([link]));
-	this.saveTree(newTree);
-    }
-    addParent(child: Node) {
+  addNewChild(parent: Node) {
     if (!this.state.tree) { return; }
-      const parent = this.createNewPerson();
-    const link = new Link({
-      index: this.state.tree.links.length,
-      source: parent.index,
-      target: child.index
-    });
+    const child = this.createNewPerson();
+    const link = this.createNewRelationship({ parent, child });
+    const newTree = this.updateTree(
+      this.state.tree.nodes.concat([child]),
+      this.state.tree.links.concat([link]));
+    this.saveTree(newTree);
+  }
+  addParent(child: Node) {
+    if (!this.state.tree) { return; }
+    const parent = this.createNewPerson();
+    const link = this.createNewRelationship({ parent, child });
     const newTree = this.updateTree(
       this.state.tree.nodes.concat([parent]),
       this.state.tree.links.concat([link]));
     this.saveTree(newTree);
   }
-  createNewPerson() {
+  createNewPerson(): Node {
     const nodes = this.state.tree?.nodes ?? [];
     return new Node({ index: nodes.length, name: "" });
+  }
+  createNewRelationship(data: { parent: Node, child: Node }): Link {
+    const links = this.state.tree?.links ?? [];
+    return new Link({
+      index: links.length,
+      source: data.parent.index,
+      target: data.child.index
+    });
   }
     handleNodeClick(node: Node) {
     this.setState({displayNode: node});
