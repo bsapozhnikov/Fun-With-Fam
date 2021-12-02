@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import React from 'react';
-import IApp from './IApp';
 import IAppState from './IAppState';
 import TreeView from '../TreeView/TreeView';
 import PersonDisplay from '../PersonDisplay/PersonDisplay';
@@ -11,10 +10,10 @@ import { locals as styles } from './App.css';
 import { json } from 'd3-fetch'
 import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../../models';
 
-class App extends React.Component<{}, IAppState> implements IApp {
+class App extends React.Component<{}, IAppState> {
     constructor(props: {}) {
 	super(props);
-	this.saveTree = this.saveTree.bind(this);
+        this.saveTree = this.saveTree.bind(this);
 	this.updateTree = this.updateTree.bind(this);
 	this.addNewChild = this.addNewChild.bind(this);
 	this.addParent = this.addParent.bind(this);
@@ -38,7 +37,7 @@ class App extends React.Component<{}, IAppState> implements IApp {
 
     saveTree(tree: Tree) {
       json("http://localhost:3000/", {
-	method: 'POST',
+	  method: 'POST',
 	body: JSON.stringify(tree),
 	headers: {
 	  "Content-Type": "application/json",
@@ -53,10 +52,7 @@ class App extends React.Component<{}, IAppState> implements IApp {
     }
     addNewChild(parent: Node) {
 	if (!this.state.tree) { return; }
-	const child = new Node({
-	    index: this.state.tree.nodes.length,
-	    name: ""
-	});
+	const child = this.createNewPerson();
 	const link = {
 	    index: this.state.tree.links.length,
 	    source: parent.index,
@@ -69,7 +65,7 @@ class App extends React.Component<{}, IAppState> implements IApp {
     }
     addParent(child: Node) {
     if (!this.state.tree) { return; }
-    const parent = new Node({ index: this.state.tree.nodes.length, name:"" });
+      const parent = this.createNewPerson();
     const link = new Link({
       index: this.state.tree.links.length,
       source: parent.index,
@@ -79,6 +75,10 @@ class App extends React.Component<{}, IAppState> implements IApp {
       this.state.tree.nodes.concat([parent]),
       this.state.tree.links.concat([link]));
     this.saveTree(newTree);
+  }
+  createNewPerson() {
+    const nodes = this.state.tree?.nodes ?? [];
+    return new Node({ index: nodes.length, name: "" });
   }
     handleNodeClick(node: Node) {
     this.setState({displayNode: node});
