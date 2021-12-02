@@ -19,7 +19,7 @@ class AppState {
 class App extends React.Component<AppProps, AppState> {
   saveTree: (tree: Tree) => void;
   updateTree: (nodes: Node[], links: Link[]) => Tree;
-  addChild: (parent: Node) => void;
+  addNewChild: (parent: Node) => void;
   addParent: (child: Node) => void;
   handleNodeClick: (node: Node) => void;
   handleDeletePerson: (node: Node) => void;
@@ -29,7 +29,7 @@ class App extends React.Component<AppProps, AppState> {
     super(props);
     this.saveTree = (tree) => { this._saveTree(tree); };
     this.updateTree = (nodes, links) => { return this._updateTree(nodes, links); };
-    this.addChild = (parent) => { this._addChild(parent); };
+    this.addNewChild = (parent) => { this._addNewChild(parent); };
     this.addParent = (child) => { this._addParent(child); };
     this.handleNodeClick = (node) => { this._handleNodeClick(node); };
     this.handleDeletePerson = (node) => { this._handleDeletePerson(node); };
@@ -64,22 +64,21 @@ class App extends React.Component<AppProps, AppState> {
     this.setState({ tree: newTree });
     return newTree;
   }
-    _addChild(parent: Node) {
-      if (!this.state.tree) { return; }
-      const child = new Node({
-	index: this.state.tree.nodes.length,
-	name: ""
-      });
-      const link = {
-	index: this.state.tree.links.length,
-	source: parent.index,
-	target: child.index
-      };
-      const newTree = this.updateTree(
-	this.state.tree.nodes.concat([child]),
-	this.state.tree.links
-	.concat([link]));
-      this.saveTree(newTree);
+    _addNewChild(parent: Node) {
+	if (!this.state.tree) { return; }
+	const child = new Node({
+	    index: this.state.tree.nodes.length,
+	    name: ""
+	});
+	const link = {
+	    index: this.state.tree.links.length,
+	    source: parent.index,
+	    target: child.index
+	};
+	const newTree = this.updateTree(
+	    this.state.tree.nodes.concat([child]),
+	    this.state.tree.links.concat([link]));
+	this.saveTree(newTree);
     }
   _addParent(child: Node) {
     if (!this.state.tree) { return; }
@@ -135,7 +134,7 @@ class App extends React.Component<AppProps, AppState> {
 	/>
 	<PersonDisplay
 	node={this.state.displayNode}
-	handleAddChild={this.addChild}
+	handleAddNewChild={this.addNewChild}
 	handleAddParent={this.addParent}
 	handleEdit={this.handleEditPerson}
 	handleDelete={this.handleDeletePerson}

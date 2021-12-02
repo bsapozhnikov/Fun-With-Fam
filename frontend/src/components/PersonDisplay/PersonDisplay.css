@@ -11,8 +11,6 @@
     padding: 2px;
     border: 1px black solid;
     border-radius: 8px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
     margin: 2px;
     text-align: center;
 }
