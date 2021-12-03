@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import React from 'react';
-import IAppState from './IAppState';
 import TreeView from '../TreeView/TreeView';
 import PersonDisplay from '../PersonDisplay/PersonDisplay';
 import AddPersonControl from '../AddPersonControl';
 
 import { locals as styles } from './App.css';
+import { IAppState, AppMode } from './IAppState';
 
 import { json } from 'd3-fetch'
 import { Node, Link, Tree, SimulationTreeData, SimulationPersonDatum } from '../../models';
@@ -21,10 +21,11 @@ class App extends React.Component<{}, IAppState> {
 	this.handleDeletePerson = this.handleDeletePerson.bind(this);
 	this.handleEditPerson = this.handleEditPerson.bind(this);
 	this.handleNewPersonSubmit = this.handleNewPersonSubmit.bind(this);
-    this.state = {
-      tree: undefined,
-      displayNode: undefined
-    };
+      this.state = {
+        tree: undefined,
+        displayNode: undefined,
+        mode: AppMode.Default
+      };
   }
   componentDidMount() {
     json("http://localhost:3000/")
@@ -45,7 +46,7 @@ class App extends React.Component<{}, IAppState> {
 	}
       });
     }
-    updateTree(nodes: Node[], links: Link[]) {
+  updateTree(nodes: Node[], links: Link[]) {
 	const newTree = new Tree({ nodes, links });
 	this.setState({ tree: newTree });
 	return newTree;
@@ -54,19 +55,13 @@ class App extends React.Component<{}, IAppState> {
     if (!this.state.tree) { return; }
     const child = this.createNewPerson();
     const link = this.createNewRelationship({ parent, child });
-    const newTree = this.updateTree(
-      this.state.tree.nodes.concat([child]),
-      this.state.tree.links.concat([link]));
-    this.saveTree(newTree);
+    this.addToTree([child], [link]);
   }
   addParent(child: Node) {
     if (!this.state.tree) { return; }
     const parent = this.createNewPerson();
     const link = this.createNewRelationship({ parent, child });
-    const newTree = this.updateTree(
-      this.state.tree.nodes.concat([parent]),
-      this.state.tree.links.concat([link]));
-    this.saveTree(newTree);
+    this.addToTree([parent], [link]);
   }
   createNewPerson(): Node {
     const nodes = this.state.tree?.nodes ?? [];
@@ -80,7 +75,14 @@ class App extends React.Component<{}, IAppState> {
       target: data.child.index
     });
   }
-    handleNodeClick(node: Node) {
+  addToTree(newNodes: Node[], newLinks: Link[]) {
+    if (!this.state.tree) { return; }
+    const newTree = this.updateTree(
+      this.state.tree.nodes.concat(newNodes),
+      this.state.tree.links.concat(newLinks));
+    this.saveTree(newTree);
+  }
+  handleNodeClick(node: Node) {
     this.setState({displayNode: node});
   }
     handleDeletePerson(node: Node) {

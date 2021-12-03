@@ -1,6 +1,11 @@
 import { Node, Tree } from '../../models';
 
-export default interface IAppState {
-    tree?: Tree;
-    displayNode?: Node;
+export enum AppMode {
+  Default
+}
+
+export interface IAppState {
+  tree?: Tree;
+  displayNode?: Node;
+  mode: AppMode;
 }
