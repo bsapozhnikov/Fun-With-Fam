@@ -117,12 +117,12 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
     this.simulation = d3.forceSimulation()
     .velocityDecay(0.1)
     .force('collide', d3.forceCollide(10))
-    .force('charge', d3.forceManyBody().strength(-100))
+    .force('charge', d3.forceManyBody().strength(-80))
     .force('X', d3.forceX().x(() => treeElement.offsetWidth / 2).strength(0.01))
     .force(
       'Y',
       d3.forceY()
-      .y((n: SimulationPersonDatum) => ((n.age ?? 1) - 1) * 200)
+      .y((n: SimulationPersonDatum) => ((n.age ?? 1) - 1) * 100 + 50)
       .strength(.1));
 
     this.nodes = d3.select(nodesElement);
@@ -215,8 +215,8 @@ export default class TreeView extends React.Component<ITreeViewProps & HtmlAttri
     this.simulation
     .force('link', d3.forceLink(simulationTree.links)
       .id((d) => d.index as number)
-      .strength(0.1)
-      .distance(40));
+      .strength(0.01)
+      .distance(10));
     this.simulation.alphaTarget(0.5).restart();
   }
 }
