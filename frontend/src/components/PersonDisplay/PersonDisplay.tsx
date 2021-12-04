@@ -34,7 +34,7 @@ export default class extends React.Component<IPersonDisplayProps & HtmlAttribute
 	  </div>);
       }
       else {
-	return (<div className={this.props.className}>NODE</div>);
+	return (<div className={this.props.className}>Select someone to see their details!</div>);
       }
     }
 }
