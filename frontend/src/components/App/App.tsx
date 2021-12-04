@@ -83,7 +83,16 @@ class App extends React.Component<{}, IAppState> {
     this.saveTree(newTree);
   }
   handleNodeClick(node: Node) {
-    this.setState({displayNode: node});
+    switch (this.state.mode) {
+      case AppMode.SelectingChild:
+        if (!this.state.displayNode) { console.log("No parent node selected"); break; }
+        const link = this.createNewRelationship({ parent: this.state.displayNode, child: node });
+        this.addToTree([], [link]);
+        this.setState({ mode: AppMode.Default });
+        break;
+      default:
+        this.setState({displayNode: node});
+    }
   }
     handleDeletePerson(node: Node) {
       if (!this.state.tree) { return; }
@@ -124,6 +133,7 @@ class App extends React.Component<{}, IAppState> {
 	<PersonDisplay
 	node={this.state.displayNode}
 	handleAddNewChild={this.addNewChild}
+        handleAddExistingAsChild={() => this.setState({ mode: AppMode.SelectingChild})}
 	handleAddParent={this.addParent}
 	handleEdit={this.handleEditPerson}
 	handleDelete={this.handleDeletePerson}

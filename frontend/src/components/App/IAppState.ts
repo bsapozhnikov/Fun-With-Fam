@@ -1,7 +1,8 @@
 import { Node, Tree } from '../../models';
 
 export enum AppMode {
-  Default
+  Default,
+  SelectingChild
 }
 
 export interface IAppState {

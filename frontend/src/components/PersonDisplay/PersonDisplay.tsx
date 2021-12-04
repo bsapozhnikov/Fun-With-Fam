@@ -21,20 +21,20 @@ export default class extends React.Component<IPersonDisplayProps & HtmlAttribute
 	this.state = { isEditingName: false };
     }
     render() {
-	if (this.props.node) {
-	    return (<div className={this.props.className}>
-		<EditableTextDisplay text={this.props.node.name} handleEdit={this.handleEditName} />
-		<div className={styles.personCtrlBtnGrp}>
-		<div> Add Child </div>
-		<div className={styles.personCtrlSecondaryBtn} onClick={this.handleAddNewChild}>New Person</div>
-		<div className={styles.personCtrlSecondaryBtn}>Existing Person</div>
-		</div>
-		<div className={styles.personCtrlBtnGrp} onClick={this.handleAddParent}>Add Parent</div>
-		<div className={styles.personCtrlBtnGrp} onClick={this.handleDelete}>Delete</div>
-		</div>);
-	}
-	else {
-	    return (<div className={this.props.className}>NODE</div>);
-	}
+      if (this.props.node) {
+	return (<div className={this.props.className}>
+	  <EditableTextDisplay text={this.props.node.name} handleEdit={this.handleEditName} />
+	  <div className={styles.personCtrlBtnGrp}>
+	  <div> Add Child </div>
+	  <div className={styles.personCtrlSecondaryBtn} onClick={this.handleAddNewChild}>New Person</div>
+	  <div className={styles.personCtrlSecondaryBtn} onClick={this.props.handleAddExistingAsChild}>Existing Person</div>
+	  </div>
+	  <div className={styles.personCtrlBtnGrp} onClick={this.handleAddParent}>Add Parent</div>
+	  <div className={styles.personCtrlBtnGrp} onClick={this.handleDelete}>Delete</div>
+	  </div>);
+      }
+      else {
+	return (<div className={this.props.className}>NODE</div>);
+      }
     }
 }
